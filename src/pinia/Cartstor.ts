@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { computed, watch, ref } from 'vue';
+import { computed, watch, ref, triggerRef } from 'vue';
 import axios from 'axios';
 import type { CartItem, NewCartItem } from '@/type/cart';
 import { useLoginStore } from '@/pinia/loginstor';
@@ -14,17 +14,18 @@ export const useCartStore = defineStore('cart', () => {
     const CART_VERSION_KEY = 'cartVersion';
 
     // 保存购物车数据到localStorage
+    //也是同步购物车商品数据
     function saveToStorage() {
         try {
-            // 生成新的版本号
-            const version = Date.now();
-            
+            // 生成新的版本号，使用时间戳+随机数避免快速点击时版本号冲突
+            const version = Date.now() + Math.floor(Math.random() * 100);
+
             localStorage.setItem(STORAGE_KEY, JSON.stringify(cartlist.value));
             localStorage.setItem(NEWGOODS_KEY, JSON.stringify(newgoods.value));
             localStorage.setItem(CART_ITEMS_KEY, JSON.stringify(cartlist.value));
             localStorage.setItem(CART_GOODS_KEY, JSON.stringify(goods.value));
             localStorage.setItem(CART_VERSION_KEY, version.toString());
-            
+
             console.log('购物车数据已保存到本地存储，版本号:', version);
         } catch (error) {
             console.warn('保存购物车数据到本地存储失败:', error);
@@ -34,8 +35,11 @@ export const useCartStore = defineStore('cart', () => {
     // 从localStorage读取购物车数据
     function loadFromStorage() {
         try {
+            // 检查是否存在购物车商品列表数据,获取购物车商品列表长度
             const savedCartlist = localStorage.getItem(STORAGE_KEY);
+            // 检查是否存在新添加商品数据
             const savedNewgoods = localStorage.getItem(NEWGOODS_KEY);
+            // 检查是否存在购物车商品数据
             const savedCartItems = localStorage.getItem(CART_ITEMS_KEY);
             const savedGoods = localStorage.getItem(CART_GOODS_KEY);
 
@@ -212,20 +216,20 @@ export const useCartStore = defineStore('cart', () => {
                     existingNewGoodsItem.count = existingCartItem.count;
                 } else {
                     // 如果newgoods中不存在，添加新记录
-                    newgoods.value.push({
+                    newgoods.value = [...newgoods.value, {
                         goodsId: goodsDetail._id,
                         count: existingCartItem.count,
-                    });
+                    }];
                 }
             } else {
                 // 如果不存在，添加新商品到newgoods中 ，用于记录加入购物车的商品，传回服务器
-                newgoods.value.push({
+                newgoods.value = [...newgoods.value, {
                     goodsId: goodsDetail._id,
                     count: 1,
-                });
+                }];
 
                 // 同时给cartlist添加新商品,用于展示购物车商品
-                cartlist.value.push({
+                cartlist.value = [...cartlist.value, {
                     goodsId: goodsDetail._id,
                     name: goodsDetail.name,
                     price: goodsDetail.price,
@@ -233,9 +237,13 @@ export const useCartStore = defineStore('cart', () => {
                     image: goodsDetail.image,
                     description: goodsDetail.description,
                     isChecked: true,
-                });
+                }];
             }
 
+            // 强制触发响应式更新
+            triggerRef(newgoods);
+            triggerRef(cartlist);
+            
             console.log('加入购物车后的newgoods:', newgoods.value);
             console.log('加入购物车后的购物车商品列表:', cartlist.value);
         } catch (error) {
@@ -359,52 +367,58 @@ export const useCartStore = defineStore('cart', () => {
             // 只处理特定的键
             // 购物车商品列表、购物车商品、新增商品、版本号
             // 只有当购物车商品列表、购物车商品、新增商品、版本号其中一个发生变化时才同步
-            // includes 方法检查数组是否包含指定元素
             if (![CART_ITEMS_KEY, CART_GOODS_KEY, NEWGOODS_KEY, CART_VERSION_KEY].includes(e.key as string)) {
                 return;
             }
-            
+
             // 防止循环更新
             if (isSyncing.value) {
                 return;
             }
-            
+
             // 检查版本号，只有当版本号更新时才同步
             const currentVersion = parseInt(localStorage.getItem(CART_VERSION_KEY) || '0');
             if (currentVersion <= lastSyncVersion) {
                 return;
             }
-            
+
             try {
                 // 标记为正在同步
                 isSyncing.value = true;
-                // 如果是购物车商品列表，且新值存在，且与当前值不同，更新购物车商品列表
-                if (e.key === CART_ITEMS_KEY && e.newValue) {
-                    const newItems = JSON.parse(e.newValue);
-                    console.log('同步购物车商品列表:', newItems);
+                
+                // 批量更新所有数据，确保数据一致性
+                const savedCartlist = localStorage.getItem(CART_ITEMS_KEY);
+                const savedGoods = localStorage.getItem(CART_GOODS_KEY);
+                const savedNewgoods = localStorage.getItem(NEWGOODS_KEY);
+                
+                if (savedCartlist) {
+                    const newItems = JSON.parse(savedCartlist);
                     if (JSON.stringify(newItems) !== JSON.stringify(cartlist.value)) {
                         cartlist.value = newItems;
+                        triggerRef(cartlist);
                     }
                 }
-                
-                if (e.key === CART_GOODS_KEY && e.newValue) {
-                    const newGoods = JSON.parse(e.newValue);
+
+                if (savedGoods) {
+                    const newGoods = JSON.parse(savedGoods);
                     if (JSON.stringify(newGoods) !== JSON.stringify(goods.value)) {
                         goods.value = newGoods;
+                        triggerRef(goods);
                     }
                 }
-                
-                if (e.key === NEWGOODS_KEY && e.newValue) {
-                    const newNewGoods = JSON.parse(e.newValue);
+
+                if (savedNewgoods) {
+                    const newNewGoods = JSON.parse(savedNewgoods);
                     if (JSON.stringify(newNewGoods) !== JSON.stringify(newgoods.value)) {
                         newgoods.value = newNewGoods;
+                        triggerRef(newgoods);
                     }
                 }
-                
+
                 // 更新上次同步的版本号
                 lastSyncVersion = currentVersion;
                 console.log('同步完成，更新版本号:', lastSyncVersion);
-                
+
             } catch (error) {
                 console.error("同步购物车数据失败:", error);
             } finally {

@@ -395,7 +395,7 @@ function resetForm() {
     position: relative;
     display: inline-flex;
     padding: 6px 18px;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg, #6076a1 0%, #4cc5c5 100%);
     color: white;
     border-radius: 8px;
     cursor: pointer;

@@ -566,8 +566,8 @@ onUnmounted(() => {
       width: 100%;
       height: 150px;
       /* 图片等比例缩放 */
-      object-fit: cover;
-      border: none;
+      object-fit:contain;
+      border-radius: 15px;
     }
 
     p {

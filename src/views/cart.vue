@@ -81,7 +81,7 @@ const handleCheckAll = () => {
 // 结算 跳转到结算页面
 const handlePayment = () => {
     // 设置结算页面访问权限 确保每次都需要从购物车点击结算按钮进入
-    // sessionStorage.setItem('canAccessJiesuan', 'true');
+    sessionStorage.setItem('canAccessJiesuan', 'true');
     router.push('/jiesuan')
 }
 watch(() => cartStore.cartlist, (newVal, oldVal) => {

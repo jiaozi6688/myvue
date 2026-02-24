@@ -243,7 +243,7 @@ export const useCartStore = defineStore('cart', () => {
             // 强制触发响应式更新
             triggerRef(newgoods);
             triggerRef(cartlist);
-            
+
             console.log('加入购物车后的newgoods:', newgoods.value);
             console.log('加入购物车后的购物车商品列表:', cartlist.value);
         } catch (error) {
@@ -385,12 +385,12 @@ export const useCartStore = defineStore('cart', () => {
             try {
                 // 标记为正在同步
                 isSyncing.value = true;
-                
+
                 // 批量更新所有数据，确保数据一致性
                 const savedCartlist = localStorage.getItem(CART_ITEMS_KEY);
                 const savedGoods = localStorage.getItem(CART_GOODS_KEY);
                 const savedNewgoods = localStorage.getItem(NEWGOODS_KEY);
-                
+                // 购物车商品列表
                 if (savedCartlist) {
                     const newItems = JSON.parse(savedCartlist);
                     if (JSON.stringify(newItems) !== JSON.stringify(cartlist.value)) {
@@ -398,7 +398,7 @@ export const useCartStore = defineStore('cart', () => {
                         triggerRef(cartlist);
                     }
                 }
-
+                // 购物车商品
                 if (savedGoods) {
                     const newGoods = JSON.parse(savedGoods);
                     if (JSON.stringify(newGoods) !== JSON.stringify(goods.value)) {
@@ -406,7 +406,7 @@ export const useCartStore = defineStore('cart', () => {
                         triggerRef(goods);
                     }
                 }
-
+                // 新增商品
                 if (savedNewgoods) {
                     const newNewGoods = JSON.parse(savedNewgoods);
                     if (JSON.stringify(newNewGoods) !== JSON.stringify(newgoods.value)) {

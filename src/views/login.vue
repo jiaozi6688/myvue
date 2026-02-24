@@ -3,7 +3,7 @@
     <div class="body">
         <div class="login-container">
             <div class="login-containerimage">
-                <img src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="登录图片展示">
+
             </div>
             <div class="login-containerform">
                 <h2>用户登录</h2>
@@ -42,12 +42,7 @@
     </div>
 
     <!-- 弹窗设置 -->
-    <tanchuang 
-        :showPopup="showPopup" 
-        :popupMessage="popupMessage" 
-        :type="types"
-        @close="showPopup = false"
-    ></tanchuang>
+    <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="types" @close="showPopup = false"></tanchuang>
 </template>
 <script setup lang="ts">
 // 引入路由，并实例化路由
@@ -105,7 +100,7 @@ function showPopupMessage(message: string, type: string) {
     popupMessage.value = message;
     showPopup.value = true;
     types.value = type;
-    
+
     // 弹窗动画效果 4秒后消失
     // setTimeout(() => {
     //     showPopup.value = false;
@@ -178,7 +173,7 @@ function login() {
 
 <style scoped>
 .body {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background-image: url('../../public/0\ \(1\).png');
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -194,7 +189,8 @@ function login() {
     overflow: hidden;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     display: flex;
-    background: #ffffff;
+   /* 毛玻璃效果 */
+    backdrop-filter: blur(3px);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
@@ -205,7 +201,6 @@ function login() {
 
 .login-containerimage {
     width: 400px;
-    background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -218,7 +213,8 @@ function login() {
 .login-containerform {
     width: 400px;
     padding: 0 40px;
-    background: #ffffff;
+    /* background: #ffffff; */
+    background-color: rgba(255, 255, 255, 0.5);
     display: flex;
     flex-direction: column;
     /* 垂直居中 */
@@ -527,4 +523,3 @@ function login() {
     }
 }
 </style>
-

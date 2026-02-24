@@ -301,7 +301,7 @@ onUnmounted(() => {
   height: 70px;
   display: flex;
   flex-direction: row;
-  background-color: aliceblue;
+  background-color: rgba(223, 224, 224, 0.144);
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   position: static;
   /* 硬件加速 */
@@ -430,8 +430,8 @@ onUnmounted(() => {
 
         /* 只让背景色模糊，文字不模糊 */
         backdrop-filter: blur(5px);
-        background-color: rgba(212, 210, 210, 0.9);
-        border: 1px solid #ccc;
+        background-color: rgba(228, 241, 247, 0.705);
+        border: 1px solid #56e9b105;
         border-radius: 15px;
         padding: 25px 30px 0px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
@@ -542,31 +542,35 @@ onUnmounted(() => {
     grid-column: span 2;
     grid-row: span 2;
     height: 610px;
+    overflow: hidden;
+    border-radius: 15px;
 
     img {
       width: 100%;
-      height: 155px;
+      height: calc(155 * 2)px;
       /* 图片等比例缩放 */
-      object-fit: cover;
-      border-radius: 15px;
+      object-fit: none;
+
     }
   }
 
   >div:not(:first-child):hover {
     transform: scale(1.01);
+    box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   div:not(:first-child) {
     display: flex;
     flex-direction: column;
-    border: 1px solid #ccc;
+    border: 0.2px solid #0e0d0d2f;
     border-radius: 15px;
 
     img {
       width: 100%;
       height: 150px;
       /* 图片等比例缩放 */
-      object-fit:contain;
+      object-fit: contain;
       border-radius: 15px;
     }
 
@@ -606,7 +610,7 @@ onUnmounted(() => {
   flex-direction: row;
   align-items: center;
   justify-content: center;
-  background-color: rgba(199, 197, 197, 0.466);
+  background-color: rgba(228, 224, 224, 0.308);
 
 
   p {

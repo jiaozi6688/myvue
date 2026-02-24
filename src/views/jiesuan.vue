@@ -48,7 +48,7 @@
                     </div>
                     <div class="address-actions">
                         <button class="edit-btn">编辑</button>
-                        <button class="delete-btn">删除</button>
+                        <button class="delete-btn" @click="deleteAddress(address._id)">删除</button>
                     </div>
                 </div>
             </div>
@@ -174,7 +174,7 @@
                         </div>
                         <div class="address-actions">
                             <button class="edit-btn">编辑</button>
-                            <button class="delete-btn">删除</button>
+                            <button class="delete-btn" @click="deleteAddress(address._id)">删除</button>
                             <button class="default-btn">设为默认</button>
                         </div>
                     </div>
@@ -204,6 +204,7 @@ const selectedGoods = computed(() => {
 
 
 const userId = useLoginStore().userInfo.userInfo.userId
+console.log('userId:', userId);
 
 
 
@@ -213,33 +214,57 @@ const addresses = ref<any[]>([])
 const selectedAddressId = ref<string>('')
 // 显示地址弹窗
 const showAddressModal = ref(false)
+// 删除地址
+function deleteAddress(addressId: string) {
 
+    try {
+        console.log('删除地址请求参数:', addressId);
+        axios.delete(`http://127.0.0.1:3000/userads/deladrs/${addressId}/${userId}`)
+            .then(response => {
+                if (response.status === 200) {
+                    // 删除成功后刷新地址列表
+                    if (addresses.value.length === 0) {
+                        // 如果删除的是当前选中的地址，清空选中
+                        addresses.value = []
+                    }
+                    fetchAddresses();
+                }
+            })
+            .catch(error => {
+                console.error('删除地址失败:', error)
+            })
+    } catch (err) {
+        console.error('删除地址失败:', err)
+    }
+}
 // 获取地址列表
 const fetchAddresses = async () => {
     try {
         // 使用环境变量中的API基础URL
         const baseURL = 'http://127.0.0.1:3000/userads/getadrs/';
-        axios.get(`${baseURL}${userId}`)
-            .then(response => {
-                if (response.status === 200) {
-                    addresses.value = response.data.data || response.data
-                    console.log('获取到的地址列表:', addresses.value)
-                }
-            })
-            .catch(error => {
-                console.error('获取地址失败:', error)
-            })
+        const response = await axios.get(`${baseURL}${userId}`)
 
+        if (response.status === 200) {
+            addresses.value = response.data.data || response.data
+            console.log('获取到的地址列表:', addresses.value)
 
-        // 设置默认选中地址
-        if (addresses.value.length > 0) {
-            const defaultAddress = addresses.value.find(addr => addr.isDefault)
-            selectedAddressId.value = defaultAddress ? defaultAddress._id : addresses.value[0]._id
+            // 设置默认选中地址
+            if (addresses.value.length > 0) {
+                const defaultAddress = addresses.value.find(addr => addr.isDefault)
+                selectedAddressId.value = defaultAddress ? defaultAddress._id : addresses.value[0]._id
+            } else {
+                // 没有地址时清空选中
+                selectedAddressId.value = ''
+            }
         }
-    } catch (err) {
-        console.error('获取地址失败:', err)
-        // 如果API调用失败，使用模拟数据
-        selectedAddressId.value = '1'
+    } catch (error: any) {
+        console.error('获取地址失败:', error)
+        // 如果是404错误，说明用户没有地址，清空地址列表
+        if (error.response?.status === 404) {
+            addresses.value = []
+            selectedAddressId.value = ''
+            console.log('用户没有地址，清空地址列表')
+        }
     }
 }
 

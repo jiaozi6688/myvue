@@ -74,7 +74,7 @@
 
                 <div class="form-actions">
                     <button type="button" class="cancel-btn" @click="$router.back()">取消</button>
-                    <button type="submit" class="save-btn" @click="saveAddress">保存地址</button>
+                    <button type="submit" class="save-btn">保存地址</button>
                 </div>
             </form>
         </div>
@@ -92,7 +92,7 @@ const userId = useLoginStore().userInfo.userInfo.userId
 const router = useRouter()
 const showPopup = ref(false)
 const popupMessage = ref('')
-const popupType = ref('success')
+const popupType = ref()
 // 表单数据
 const formData = reactive({
     name: '',
@@ -104,9 +104,12 @@ const formData = reactive({
     tag: 'home', // 默认选择"家"标签
     isDefault: false
 })
-function showPopupMessage(message: string, type: string ) {
+function showPopupMessage(message: string, type: string) {
+    // 显示弹窗的消息
     popupMessage.value = message;
+    // 显示弹窗
     showPopup.value = true;
+    // 设置弹窗类型
     popupType.value = type;
 }
 // 保存地址的方法
@@ -141,15 +144,16 @@ const saveAddress = () => {
         axios.post(`${baseURL}` + userId, {
             ...formData,
             userId: userId
+        }).then(response => {
+            if (response.status === 201) {
+                showPopupMessage('地址保存成功！', 'success')
+                return setTimeout(() => {
+                    router.back()
+                }, 2000);
+            } else {
+                return showPopupMessage(response.data.message || '保存地址失败，请重试', 'error')
+            }
         })
-            .then(response => {
-                if (response.data.code === 201) {
-                    showPopupMessage('地址保存成功！', 'success')
-                    return router.back();
-                } else {
-                    return showPopupMessage(response.data.message || '保存地址失败，请重试', 'error')
-                }
-            })
     } catch (error: any) {
         console.error('保存地址失败:', error)
         showPopupMessage(error.message || '保存地址失败，请重试', 'error')

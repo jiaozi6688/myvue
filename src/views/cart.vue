@@ -26,16 +26,13 @@
                 <div>
                     <input type="checkbox" :checked="item.isChecked" @click="select(item.goodsId)">
                 </div>
-                <div><img alt="商品图片" :src="item.image" :title="item.name">
+                <div>
+                    <img alt="商品图片" :src="`http://127.0.0.1:3000${item.image}`" :title="item.name">
                     {{ item.name }}
                 </div>
                 <div>{{ Number(item.price).toFixed(2) }}</div>
                 <div>{{ Number(item.count) }}</div>
                 <div>{{ (Number(item.count) * Number(item.price)).toFixed(2) }}</div>
-            </div>
-            <div>
-                {{ cartStore.cartlist.length }}
-                <!-- <span v-for="item in cartStoress.cartlist" :key="item.hah">{{ item.hah }}</span> -->
             </div>
         </main>
         <footer class="cart-footer" v-if="cartStore.cartlist.length !== 0">
@@ -64,6 +61,8 @@ import { ref, computed, watch } from 'vue';
 
 const cartStore = useCartStore()
 const items = computed(() => cartStore.cartlist);
+console.log('awihdkiawhduihawiduhawiud',items.value);
+
 // 单选
 const select = (goodsId: string) => {
     const item = cartStore.cartlist.find(item => item.goodsId === goodsId)

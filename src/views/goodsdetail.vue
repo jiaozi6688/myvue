@@ -86,6 +86,8 @@ onMounted(() => {
         axios.get(`http://127.0.0.1:3000/getgoodslist/detail/${id}`).then(res => {
             goodsDetail.value = res.data.data;
             // console.log(goodsDetail.value);
+        
+            
             return
         })
     } catch (error) {

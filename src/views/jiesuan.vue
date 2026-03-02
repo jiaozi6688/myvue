@@ -63,7 +63,9 @@
             <!-- 商品列表展示需要结算的商品 -->
             <div class="products-list">
                 <div v-for="item in selectedGoods" :key="item.goodsId" class="product-card">
-                    <div class="product-image-placeholder"></div>
+                    <div class="product-image">
+                        <img alt="商品图片" :src="`http://127.0.0.1:3000${item.image}`" :title="item.name">
+                    </div>
                     <div class="product-info">
                         <h3 class="product-name">{{ item.name }}</h3>
                         <p class="product-spec">规格：{{ '无' }}</p>
@@ -198,6 +200,8 @@ const router = useRouter()
 const cartStore = useCartStore()
 // 选中需要结算的商品渲染到页面
 const selectedGoods = computed(() => {
+    console.log('akjwl;daw',cartStore.selectedGoods);
+    
     return cartStore.selectedGoods
 })
 
@@ -583,6 +587,22 @@ body {
     padding: 12px;
     border: 1px solid #e9ecef;
     border-radius: 8px;
+}
+
+.product-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 6px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.product-image img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: cover;
 }
 
 .product-image-placeholder {

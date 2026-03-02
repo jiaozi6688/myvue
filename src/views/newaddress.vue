@@ -24,21 +24,21 @@
                     <div class="region-selector">
                         <select class="region-select" id="province" v-model="formData.province">
                             <option value="">请选择省份</option>
-                            <option value="beijing">北京市</option>
-                            <option value="shanghai">上海市</option>
-                            <option value="guangdong">广东省</option>
+                            <option value="北京市">北京市</option>
+                            <option value="上海市">上海市</option>
+                            <option value="广东省">广东省</option>
                         </select>
                         <select class="region-select" id="city" v-model="formData.city">
                             <option value="">请选择城市</option>
-                            <option v-if="formData.province === 'beijing'" value="beijing">北京市</option>
-                            <option v-if="formData.province === 'shanghai'" value="shanghai">上海市</option>
-                            <option v-if="formData.province === 'guangdong'" value="guangdong">广东省</option>
+                            <option v-if="formData.province === '北京市'" value="北京市">北京市</option>
+                            <option v-if="formData.province === '上海市'" value="上海市">上海市</option>
+                            <option v-if="formData.province === '广东省'" value="广东省">广东省</option>
                         </select>
                         <select class="region-select" id="district" v-model="formData.district">
                             <option value="">请选择区县</option>
-                            <option v-if="formData.city === 'beijing'" value="beijing">北京市</option>
-                            <option v-if="formData.city === 'shanghai'" value="shanghai">上海市</option>
-                            <option v-if="formData.city === 'guangdong'" value="guangdong">广东省</option>
+                            <option v-if="formData.city === '北京市'" value="北京市">北京市</option>
+                            <option v-if="formData.city === '上海市'" value="上海市">上海市</option>
+                            <option v-if="formData.city === '广东省'" value="广东省">广东省</option>
                         </select>
                     </div>
                 </div>
@@ -83,7 +83,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Tanchuang from '@/components/modal/tanchuang.vue'

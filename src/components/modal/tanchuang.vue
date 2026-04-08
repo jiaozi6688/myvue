@@ -86,7 +86,7 @@ defineExpose({
     line-height: 50px;
     text-align: center;
     position: fixed;
-    top: -4%;
+    top: 30px;
     left: 50%;
     transform: translate(-50%, -50%);
     border-radius: 15px;

@@ -17,21 +17,29 @@
             <Menu />
           </el-icon>
         </span>
-        <div v-show="showdh">
-          <p>首页</p>
-          <p>商品分类</p>
-          <p>商品列表</p>
-          <p>购物车</p>
-          <p>用户中心</p>
-        </div>
+        <ul v-show="showdh">
+          <li>首页</li>
+          <li>商品分类</li>
+          <li>商品列表</li>
+          <li>购物车</li>
+          <li>用户中心</li>
+        </ul>
       </div>
+
+      <!-- 搜索框  -->
+      <div>
+        <el-input v-model="searchText" @keyup.enter="handleSearch(searchText)" placeholder="请输入搜索内容">
+          {{ searchText }}
+        </el-input>
+      </div>
+
       <!-- 用户头像 名称 -->
       <div>
         <!-- 用户头像 当鼠标进去头像的时候 放大并显示用户信息弹窗 鼠标离开弹窗信息之后返回原始大小 -->
         <!-- 'imghover': showUserInfo  是一个类名 当showUserInfo为true时 才会添加这个类名 -->
         <div @mouseenter="showUserInfo = true" @mouseleave="showUserInfo = false">
           <div>
-            <img :class="{ 'imghover': showUserInfo }" v-if="loginStore.islogin"
+            <img :class="[showUserInfo ? 'imghover' : '']" v-if="loginStore.islogin"
               src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="">
             <a v-if="!loginStore.islogin" href="/login">点击登录</a>
           </div>
@@ -103,7 +111,6 @@
         <p class="desc">{{ item.description }}</p>
         <p class="price">¥{{ item.price }}</p>
       </div>
-
     </el-main>
     <!-- ================底部================ -->
     <el-footer class="footer">
@@ -127,14 +134,14 @@ import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { User, Menu, UserFilled, Message, SwitchButton, ShoppingCart } from '@element-plus/icons-vue';
 import axios from 'axios';
 import router from '@/router';
-import { el } from 'element-plus/es/locales.mjs';
+import searchGoods from '@/api/search';
+import message from '@/components/modal/message';
 // 初始化登录状态
 const loginStore = useLoginStore();
 const role = loginStore.userInfo?.userInfo?.role;
 // http://127.0.0.1:3000/images/image-1767081632414-984166025.jpg
 console.log('用户角色', role);
 loginStore.initLoginState();
-
 // 获取购物车数据
 const cartStore = useCartStore();
 // 判断是否有登录用户
@@ -156,6 +163,8 @@ let lastScrollTime = 0;
 let lastScrollY = 0;
 // 添加节流控制变量
 let lastResizeTime = 0;
+// 搜索框
+const searchText = ref('');
 const zk = ref(false);
 // 导航栏是否折叠
 const showdh = ref(true);
@@ -209,11 +218,11 @@ const handleScroll = () => {
 // 数据加载状态标记
 const dataLoaded = ref(false);
 // 商品分类点击事件处理函数
-function getGoodsList() {
+async function getGoodsList() {
   // 检查是否已加载数据
   if (dataLoaded.value) return;
   // 挂载前拿到整个商品列表
-  axios.get('http://127.0.0.1:3000/getgoodslist/').then((res) => {
+  await axios.get('http://127.0.0.1:3000/getgoodslist/').then((res) => {
     if (res.data.code === 200) {
       console.log('商品列表', res.data.data);
       goodslist.value = res.data.data;
@@ -225,6 +234,19 @@ function getGoodsList() {
   });
 }
 
+// 搜索商品
+function handleSearch(value: string) {
+  if (!value) {
+    message.error('请输入搜索内容');
+    return;
+  }
+  searchGoods(value).then((res) => {
+    console.log('搜索商品成功', res.data.data);
+    goodslist.value = res.data.data;
+  }).catch((err) => {
+    console.log('搜索商品失败', err);
+  });
+}
 
 // 点击商品分类，跳转到商品详情页
 const handleClick = (id: string) => {
@@ -264,23 +286,24 @@ onUnmounted(() => {
   window.removeEventListener('resize', handleResize);
 });
 </script>
-<style scoped>
+<style lang="scss" scoped>
+/* 全局修复：消除页面横向滚动条 */
+html,
+body {
+  margin: 0 !important;
+  padding: 0 !important;
+  /* 禁止横向滚动 */
+  overflow-x: hidden !important;
+  width: 100% !important;
+}
+
 * {
   margin: 0;
   padding: 0;
-
+  box-sizing: border-box;
 }
 
 /* Element Plus 样式变量覆盖 */
-:root {
-  /* 基础字体大小 */
-  --el-font-size-base: 16px;
-  /* 组件尺寸 */
-  --el-component-size: 20px;
-  /* 图标大小 */
-  --el-icon-size: 20px;
-}
-
 .container {
   width: 100%;
   height: auto;
@@ -295,237 +318,161 @@ onUnmounted(() => {
 
 /* 头部 */
 .header {
-  /* 鼠标样式*/
   cursor: default;
   width: 100%;
   height: 70px;
   display: flex;
-  flex-direction: row;
+  justify-content: space-around;
+  align-items: center;
   background-color: rgba(223, 224, 224, 0.144);
   transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
   position: static;
-  /* 硬件加速 */
   will-change: transform, background-color, box-shadow;
-  /* 启用硬件加速 */
   transform: translateZ(0);
 
-  /* 启用GPU加速 */
+
   &.headerfixed {
     position: fixed;
     top: 0;
     left: 0;
     z-index: 1000;
-    padding: 10px 10px;
+    padding: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     background-color: rgba(240, 248, 255, 0.95);
-    /* 半透明背景 */
   }
 
-  /*  */
   img {
     width: 2.5rem;
     height: 2.5rem;
     border-radius: 50%;
     transition: all 0.5s;
     border: 1px solid #ccc;
+    // 防止图片溢出
+    object-fit: cover;
   }
 
-  /* 导航菜单，用户头像 名称，购物车 都放在一行*/
   >div {
     display: flex;
     flex-direction: row;
     align-items: center;
+    padding: 0 10px;
+    gap: 10px;
   }
 
-  /* 商城标题，图标 */
+  /* 导航栏 */
   >div:nth-child(1) {
-    flex: 0.7;
-    gap: 15px;
+    flex: 1;
 
     h1 {
-      font-size: 2.3rem;
-    }
-
-    img {
-      margin-left: 20px;
+      font-size: 1.2rem;
     }
   }
 
-  .daohang {
-    position: relative;
-    flex: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+  >div:nth-child(2) {
+    flex: 3;
 
-    div {
-      width: 100%;
-      position: absolute;
-      top: 45px;
-      background-color: #9ea3a8;
-    }
-  }
-
-  /* 导航菜单 */
-  .daohang1 {
-    flex: 2;
-
-    div {
+    ul {
       display: flex;
       flex-direction: row;
-
-      p {
-        font-size: 1.1rem;
-        margin: 0 .3rem;
-      }
+      align-items: center;
+      gap: 10px;
+      list-style: none;
     }
   }
 
-
-
-  /* 用户头像 名称 */
+  // 搜索框
   >div:nth-child(3) {
+    width: 260px;
+    color: black;
+    transition: all 0.3s ease;
 
-    /* flex: 0.33; */
-    /* 头像div和用户弹窗div 都放在一行 */
-    div {
+    &:focus-within {
+      width: 300px;
+    }
 
-      /* 头像div */
-      div:nth-child(1) {
-        width: 2.5rem;
-        height: 2.5rem;
-        border-radius: 50%;
-
-        /* 鼠标移入头像放大 */
-        .imghover {
-          /* 绝对定位，头像div和用户弹窗div 都放在一行 */
-          position: absolute;
-          z-index: 2;
-          /* 鼠标移入头像放大时，头像在最上面 */
-          box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
-          transform: scale(2.2) translateY(15px) translateX(-10px);
-        }
-
-        a {
-          display: inline-block;
-          width: 80px;
-          line-height: 40px;
-          font-size: 0.9rem;
-        }
-      }
-
-      /* 用户弹窗div  */
-      .user-info {
-        --size: 10px;
-        /* 用户弹窗,脱离文档 */
-        font-size: 10px;
-        position: absolute;
-        top: calc(100% + calc(var(--size)*1.5));
-        right: calc(15% - 75px);
-        display: flex;
-        flex-direction: column;
-        gap: 15px 0;
-        width: 150px;
-        height: auto;
-
-        /* 只让背景色模糊，文字不模糊 */
-        backdrop-filter: blur(5px);
-        background-color: rgba(228, 241, 247, 0.705);
-        border: 1px solid #56e9b105;
-        border-radius: 15px;
-        padding: 25px 30px 0px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        animation: user-info-show 0.3s cubic-bezier(0.23, 1, 0.32, 1);
-        /* 弹窗从右上角出现 */
-        transform-origin: top right;
-        /* 设置动画原点 */
-        transition: all 0.2s;
-        /* 增加鼠标悬停效果的过渡 */
-
-        /* 鼠标悬停效果 */
-        &:hover {
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
-          transform: scale(1.02);
-        }
-
-        p,
-        a {
-          display: flex;
-          flex-direction: row;
-          align-items: center;
-          gap: 0 10px;
-          font-size: 1.1rem;
-          padding: 3px 0;
-
-          color: black;
-
-          svg {
-            font-size: 20px;
-          }
-        }
-
-        a:last-child {
-          margin-bottom: 15px;
-        }
-
-        p:hover {
-          color: #007bff;
-        }
-
-        a:hover {
-          color: #007bff;
-        }
-
-
-      }
+    &:focus-within ::placeholder {
+      opacity: 0;
+      transition: all 0.3s ease;
     }
   }
 
-  /* 购物车 */
+  // 商城头像
   >div:nth-child(4) {
-    flex: 0.45;
-    /* 购物车文字居中 */
-    justify-content: flex-start;
+    /* 关键：父级设为相对定位，作为绝对定位弹窗的基准 */
+    position: relative;
+    flex: 0;
+    z-index: 9999 !important;
+    /* 父级最高层级 */
 
-    div {
-      a {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        cursor: default;
-      }
+    .imghover {
+      position: relative;
+      z-index: 99999 !important;
+      /* 头像放大顶级层级 */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+      /* 优化放大中心点，更美观 */
+      transform-origin: center;
+      transform: scale(2.2) translateY(15px) translateX(-10px);
+      /* 禁止被任何元素裁剪 */
+      clip-path: none !important;
+    }
 
-      span {
-        font-size: 20px;
-        padding: 10px;
-        margin-left: 20px;
-      }
+    a,
+    p {
+      display: inline-block;
+      width: 80px;
+      line-height: 40px;
+      font-size: 0.9rem;
+    }
 
-      p {
-        font-size: 1rem;
-      }
+    .user-info {
+      --size: 10px;
+      font-size: 0.8rem;
+      /* 绝对定位，脱离文档流 */
+      position: absolute;
+      top: calc(89% + calc(var(--size)*2));
+      right: -70px;
+      /* 弹窗顶级层级，不被任何元素遮挡 */
+      z-index: -1 !important;
+      display: flex;
+      flex-direction: column;
+      width: 260px;
+      height: auto;
+      backdrop-filter: blur(5px);
+      background-color: rgba(228, 241, 247, 0.705);
+      border-radius: 15px;
+      padding: 15px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      animation: user-info-show 0.3s cubic-bezier(0.23, 1, 0.32, 1);
+      transform-origin: top right;
+      transition: all 0.2s;
 
       &:hover {
-        color: #e06142;
-      }
-
-      &:hover a {
-        color: #e06142;
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        transform: scale(1.02);
       }
     }
   }
 
+  >div:nth-child(5) {
+    font-size: 1rem;
+    flex: 0.3;
+    text-align: center;
+
+    span {
+      font-size: 20px;
+    }
+  }
 }
 
 /* 主体 */
 .main {
   width: 90%;
+  padding: 10px;
   min-height: 86vh;
-  height: auto;
   margin: 0 auto;
-  padding-top: 10px;
   transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   display: grid;
+  // 自适应网格：最小260px，自动填充
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
   grid-gap: 20px;
 
@@ -533,43 +480,37 @@ onUnmounted(() => {
     min-height: 290px;
     margin-bottom: 10px;
     overflow: hidden;
+    border-radius: 15px;
+    transition: all 0.3s;
   }
 
-
-
+  // 第一个商品（轮播/大图）
   >div:first-child {
-    /* 第一个商品，占2列2行 */
     grid-column: span 2;
     grid-row: span 2;
     height: 610px;
-    overflow: hidden;
-    border-radius: 15px;
 
     img {
       width: 100%;
-      height: calc(155 * 2)px;
-      /* 图片等比例缩放 */
-      object-fit: none;
-
+      height: 100%;
+      // 修复原代码错误的图片高度写法，自适应填充
+      object-fit: cover;
     }
   }
 
   >div:not(:first-child):hover {
     transform: scale(1.01);
     box-shadow: 0 10px 15px rgba(0, 0, 0, 0.3);
-    transition: all 0.3s cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   div:not(:first-child) {
     display: flex;
     flex-direction: column;
     border: 0.2px solid #0e0d0d2f;
-    border-radius: 15px;
 
     img {
       width: 100%;
       height: 150px;
-      /* 图片等比例缩放 */
       object-fit: contain;
       border-radius: 15px;
     }
@@ -579,7 +520,6 @@ onUnmounted(() => {
       margin: 5px 10px;
     }
 
-    /* margin 和padding 都算在宽度内css? box-sizing: border-box; */
     .title {
       font-size: 1.2rem;
       font-weight: bold;
@@ -605,239 +545,175 @@ onUnmounted(() => {
 
 /* 底部 */
 .footer {
-  height: 3vw;
+  height: auto;
+  min-height: 3vw;
   display: flex;
   flex-direction: row;
   align-items: center;
   justify-content: center;
+  flex-wrap: wrap;
   background-color: rgba(228, 224, 224, 0.308);
-
+  padding: 15px 10px;
+  gap: 10px;
 
   p {
-    margin: 0 10px;
+    margin: 0 5px;
     font-size: 1rem;
-  }
-}
-
-
-
-/* 响应式断点设计 */
-@media (max-width: 1200px) {
-  .header {
-    height: auto;
-
-    >div:nth-child(1) {
-      h1 {
-        font-size: 1.6rem;
-      }
-    }
-
-    >div:nth-child(2) {
-      gap: 12px;
-    }
-
-    >div:nth-child(4) {
-      div {
-        p {
-          font-size: 1rem;
-        }
-      }
-    }
-  }
-
-  .main {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-
-    >div:not(:first-child) {
-      .title {
-        margin-top: 5px;
-        font-size: 1.2rem;
-      }
-
-      .desc {
-        font-size: 0.8rem;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #9c9b9b;
-      }
-
-      .price {
-        font-size: 1.2rem;
-      }
-    }
-  }
-}
-
-@media (max-width: 940px) {
-  .header {
-    /* 响应式布局，
-    当屏幕宽度小于等于999px时，header 中的div 垂直排列 */
-    flex-wrap: wrap;
-    height: auto;
-    min-height: 70px;
-    padding: 10px 16px;
-
-    >div:nth-child(1) {
-      /* order 控制元素在flex容器中的排列顺序 */
-      order: 1;
-
-      h1 {
-        font-size: 1.rem;
-      }
-    }
-
-    >div:nth-child(2) {
-      order: 2;
-      justify-content: center;
-      margin-top: 10px;
-    }
-
-    /* 登录注册按钮 */
-    >div:nth-child(3) {
-      /* order是什么意思 ？  控制元素在flex容器中的排列顺序 */
-      order: 3;
-      margin-left: auto;
-    }
-
-    /*  */
-    >div:nth-child(4) {
-      order: 4;
-      background-color: #e06142;
-
-      div {
-        span {
-          font-size: 20px;
-        }
-
-        p {
-          font-size: 0.6rem;
-        }
-      }
-    }
-
-    &.headerfixed {
-      height: auto;
-      min-height: 70px;
-    }
-
-  }
-
-  .header-placeholder {
-    height: 100px;
-  }
-
-  .main {
-    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-    gap: 16px;
-
-    >div:not(:first-child) {
-      .title {
-        margin-top: 5px;
-        font-size: 1.2rem;
-      }
-
-      .desc {
-        font-size: 0.8rem;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #9c9b9b;
-      }
-
-      .price {
-        font-size: 1.2rem;
-      }
-    }
-  }
-}
-
-@media (max-width: 768px) {
-  .header {
-    >div:nth-child(1) {
-      h1 {
-        font-size: 1rem;
-      }
-
-      img {
-        width: 2rem;
-        height: 2rem;
-      }
-    }
-
-    >div:nth-child(2) {
-      gap: 8px;
-    }
-
-
-    >div:nth-child(3) {
-      div div:nth-child(1) {
-        width: 2rem;
-        height: 2rem;
-
-        a {
-          width: 70px;
-          font-size: 0.8rem;
-        }
-      }
-    }
-
-    >div:nth-child(4) {
-      div p {
-        font-size: 0.8rem;
-      }
-    }
-  }
-
-  .main {
-    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    padding: 20px 12px;
-    gap: 12px;
-
-    >div:nth-child(1) {
-      height: 250px;
-    }
-
-    >div:not(:first-child) {
-      .title {
-        margin-top: 5px;
-        font-size: 1.2rem;
-      }
-
-      .desc {
-        font-size: 0.8rem;
-        margin-top: 20px;
-        margin-bottom: 10px;
-        color: #9c9b9b;
-      }
-
-      .price {
-        font-size: 1.2rem;
-      }
-    }
-  }
-
-  .footer {
-
-    padding: 16px 12px;
-
-    p {
-      font-size: 10px;
-      padding: 5px 10px;
-    }
+    white-space: nowrap;
   }
 }
 
 /* 动画 */
 @keyframes user-info-show {
   0% {
-    /* 弹窗从右上角出现 */
     opacity: 0;
     transform: scale(0.8) translateY(10px);
   }
 
   100% {
-    /* 弹窗完全出现 */
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+}
+
+/* ====================== 响应式媒体查询 ====================== */
+// 1. 平板设备 (768px - 1024px)
+@media (max-width: 1024px) and (min-width: 768px) {
+  .header {
+    height: 65px;
+  }
+
+  .header>div:nth-child(3) {
+    width: 200px;
+  }
+
+  .main>div:first-child {
+    height: 500px;
+  }
+}
+
+// 2. 移动端/手机 (小于768px，核心适配)
+@media (max-width: 768px) {
+
+  // 全局字体缩小
+  html {
+    font-size: 14px;
+  }
+
+  // 头部占位符高度适配
+  .header-placeholder {
+    height: 60px;
+  }
+
+  // 头部核心适配
+  .header {
+    height: 60px;
+    padding: 0 5px;
+    // 小屏幕允许头部换行
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .headerfixed {
+    padding: 5px !important;
+  }
+
+  // 隐藏商城标题，节省空间
+  .header>div:nth-child(1) h1 {
+    display: none;
+  }
+
+  // 导航栏适配：缩小间距
+  .header>div:nth-child(2) ul {
+    gap: 5px;
+
+    li {
+      font-size: 0.85rem;
+    }
+  }
+
+  // 搜索框适配：宽度大幅缩小
+  .header>div:nth-child(3) {
+    width: 180px;
+
+    &:focus-within {
+      width: 160px;
+    }
+  }
+
+  .header>div:nth-child(4) {
+    .imghover {
+      transform: scale(1.5) translateY(15px) translateX(-10px);
+    }
+
+    .user-info {
+      --size: 10px;
+      width: 200px;
+      font-size: 0.8rem;
+      /* 绝对定位，脱离文档流 */
+      position: absolute;
+      top: calc(95% + calc(var(--size)*2));
+      right: -40px;
+      border-radius: 0 15px 15px 15px;
+      transition: all 0.2s;
+
+      &:hover {
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+      }
+    }
+  }
+
+
+
+  // 购物车文字隐藏，只留图标
+  .header>div:nth-child(5){
+    p {
+      display: none;
+    }
+    span {
+      font-size: 20px;
+    }
+  }
+
+  // 主体商品适配
+  .main {
+    width: 95%;
+    grid-template-columns: 1fr !important; // 移动端单列展示
+    grid-gap: 15px;
+  }
+
+  // 取消第一个商品跨列跨行，移动端普通卡片展示
+  .main>div:first-child {
+    grid-column: span 1 !important;
+    grid-row: span 1 !important;
+    height: 200px;
+  }
+
+  // 商品卡片图片高度适配
+  .main div:not(:first-child) img {
+    height: 120px;
+  }
+
+  // 底部适配：垂直排列，字体缩小
+  .footer {
+    flex-direction: column;
+    text-align: center;
+
+    p {
+      font-size: 0.85rem;
+    }
+  }
+}
+
+// 3. 超小屏幕 (小于375px，如迷你手机)
+@media (max-width: 375px) {
+  .header>div:nth-child(2) {
+    display: none; // 隐藏导航栏，完全依赖汉堡菜单
+  }
+
+  .header>div:nth-child(3) {
+    width: 100px;
+  }
+
 }
 </style>

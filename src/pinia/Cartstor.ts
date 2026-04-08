@@ -118,6 +118,17 @@ export const useCartStore = defineStore('cart', () => {
     });
 
     // 方法
+    // 推出登录删除localStorage数据
+    function clearCartData() {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(NEWGOODS_KEY);
+        localStorage.removeItem(CART_ITEMS_KEY);
+        localStorage.removeItem(CART_GOODS_KEY);
+        localStorage.removeItem(CART_VERSION_KEY);
+    }
+
+
+
     function getCartLength() {
         return cartlist.value.length;
     }
@@ -239,15 +250,13 @@ export const useCartStore = defineStore('cart', () => {
                     isChecked: true,
                 }];
             }
-
             // 强制触发响应式更新
             triggerRef(newgoods);
             triggerRef(cartlist);
-
-            console.log('加入购物车后的newgoods:', newgoods.value);
-            console.log('加入购物车后的购物车商品列表:', cartlist.value);
+            return true;
         } catch (error) {
             console.error('加入购物车失败:', error);
+            return false;
         }
     }
 
@@ -480,6 +489,8 @@ export const useCartStore = defineStore('cart', () => {
         paymethod,
         // 初始化跨窗口同步监听
         initSync,
+        // 推出登录删除localStorage数据
+        clearCartData,
     }
 });
 

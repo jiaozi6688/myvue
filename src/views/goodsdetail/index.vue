@@ -1,7 +1,7 @@
 <template>
     <div class="goods-detail-container">
         <div class="breadcrumb">
-            <span>首页</span>
+            <span><a href="/">首页</a></span>
             <span class="separator">/</span>
             <span>商品详情</span>
         </div>
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                     <div class="spec-item">
-                        <span class="spec-label" >数量：</span>
+                        <span class="spec-label">数量：</span>
                         <div class="quantity-selector">
                             <button class="quantity-btn minus">-</button>
                             <input type="number" class="quantity-input" value="1" min="1" />
@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="action-buttons">
-                    <button class="btn btn-primary" @click="cartStore.addToCart(goodsDetail)">加入购物车</button>   
+                    <button class="btn btn-primary" @click="addToCartgoods(goodsDetail)">加入购物车</button>
                     <button class="btn btn-secondary">立即购买</button>
                 </div>
             </div>
@@ -71,11 +71,10 @@
 import { useRoute } from 'vue-router'
 import { onMounted, ref } from 'vue'
 import { useCartStore } from '@/pinia/Cartstor'
+import { ElMessage } from 'element-plus'
 import axios from 'axios';
-import { isArray } from 'element-plus/es/utils/types.mjs';
+import message from '@/utils/message'
 const route = useRoute()
-// 从购物车存储中获取购物车列表
-const cartStore = useCartStore();
 // 保存商品详情数据
 const goodsDetail = ref<any>([]);
 // 商品详情页，根据商品id获取商品详情
@@ -85,15 +84,24 @@ onMounted(() => {
         // 没有缓存或缓存不匹配，发送请求
         axios.get(`http://127.0.0.1:3000/getgoodslist/detail/${id}`).then(res => {
             goodsDetail.value = res.data.data;
-            // console.log(goodsDetail.value);
-        
-            
+            // console.log(goodsDetail.value); 
             return
         })
     } catch (error) {
         console.error('获取商品详情失败:', error);
     }
 })
+function addToCartgoods(goodsDetail: any) {
+    const res = useCartStore().addToCart(goodsDetail);
+    if (res) {
+        message.success('加入购物车成功')
+        // message.success('加入购物车成功');
+        // ElMessage.success('加入购物车成功');
+    } else {
+        // message.error('加入购物车失败');
+        ElMessage.error('加入购物车失败');
+    }
+}
 
 </script>
 
@@ -108,6 +116,8 @@ onMounted(() => {
     padding: 15px 0;
     font-size: 14px;
     color: #666;
+    /* 鼠标样式 */
+    cursor: default;
 }
 
 .breadcrumb .separator {

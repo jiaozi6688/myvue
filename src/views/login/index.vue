@@ -1,9 +1,8 @@
 <template>
-
-    <div class="body">
+    <div class="login-wrapper">
+        <div class="body">
         <div class="login-container">
             <div class="login-containerimage">
-
             </div>
             <div class="login-containerform">
                 <h2>用户登录</h2>
@@ -43,10 +42,12 @@
 
     <!-- 弹窗设置 -->
     <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="types" @close="showPopup = false"></tanchuang>
+    </div>
 </template>
 <script setup lang="ts">
 // 引入路由，并实例化路由
 import { useRouter } from 'vue-router'
+import  message  from '@/utils/message'
 const router = useRouter()
 // 引入axios
 import axios from 'axios'
@@ -132,18 +133,19 @@ function login() {
         }, 5000);
     }
     if (fasonqq.value === 0) {
-        axios.defaults.baseURL = 'http://127.0.0.1:3000/login';
+        axios.defaults.baseURL = 'http://localhost:3000';
         axios.post('/login', {
             // 根据usernameOrPhone判断是手机号登录还是用户名登录
             [usernameOrPhone.value ? 'phone' : 'username']: usernameOrPhoneMsg.value.trim(),
             password: password.value.trim()
+        }, {
+            withCredentials: true
         }).then(res => {
             // 登录成功，重置fasonqq.value为1
             fasonqq.value = 1;
             if (res.data.code === 200) {
-                showPopupMessage(res.data.message, 'success');
-                // 登录成功后，将token存储到localStorage
-                localStorage.setItem('token', res.data.token);
+                message.success(res.data.message);
+    
                 // 更新Pinia登录状态
                 loginStore.login
                     (res.data || { [usernameOrPhone.value ? 'phone' : 'username']: usernameOrPhoneMsg.value.trim() });
@@ -155,7 +157,7 @@ function login() {
                 }, 2000);
                 return true;
             } else {
-                showPopupMessage(res.data.message, 'error');
+                message.error(res.data.message);
                 return false;
             }
 
@@ -172,6 +174,11 @@ function login() {
 </script>
 
 <style scoped>
+.login-wrapper {
+    width: 100%;
+    min-height: 100vh;
+}
+
 .body {
     background-image: url('../../public/0\ \(1\).png');
     min-height: 100vh;
@@ -189,7 +196,7 @@ function login() {
     overflow: hidden;
     box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
     display: flex;
-   /* 毛玻璃效果 */
+    /* 毛玻璃效果 */
     backdrop-filter: blur(3px);
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }

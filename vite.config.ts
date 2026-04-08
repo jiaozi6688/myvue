@@ -1,7 +1,6 @@
 // vite.config.ts
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
-import vueDevtools from 'vite-plugin-vue-devtools'
 import path from 'path'
 
 // https://vite.dev/config/
@@ -10,7 +9,6 @@ export default defineConfig({
   base: './', 
   plugins: [
     vue(),
-    vueDevtools(),
   ],
   resolve: {
     // 可选：配置路径别名（如果你的项目用了 @ 别名，需要加这个）

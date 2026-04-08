@@ -1,8 +1,14 @@
 <template>
-  <RouterView />
+  <RouterView v-slot="{ Component }">
+    <transition name="fade" mode="out-in">
+      <component :is="Component" />
+    </transition>
+  </RouterView>
+  <ChatAI></ChatAI>
 </template>
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
+import ChatAI from '@/views/ChatAI/ai.vue'
 </script>
 <style>
 * {
@@ -22,6 +28,7 @@ html {
 }
 
 body {
+  width: 100%;
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
   min-height: 100vh;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -32,4 +39,16 @@ body {
   background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
 }
 </style>
-<style scoped></style>
+<style scoped>
+/* 页面过渡动画 */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+  transform: translateY(20px);
+}
+</style>

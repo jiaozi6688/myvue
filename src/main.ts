@@ -17,7 +17,10 @@ app.use(router)
 // 初始化登录状态
 const loginStore = useLoginStore()
 loginStore.initLoginState()
+import axios from 'axios';
 
+// 全局开启：跨域自动携带 Cookie
+axios.defaults.withCredentials = true;
 // 初始化购物车
 setupCart()
 

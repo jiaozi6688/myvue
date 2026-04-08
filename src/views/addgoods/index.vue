@@ -58,7 +58,7 @@
         <!-- 弹窗组件 -->
         <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="popupType" @close="showPopup = false">
         </tanchuang>
-    </div>
+    </div> 
 </template>
 
 <script setup lang="ts">
@@ -230,6 +230,10 @@ async function submitGoods() {
         }
         // 使用 forEach 遍历 submitData 对象的键值对
         // key值就是 submitData中  UserId：userId  的第一个userId   第二个UserId是 value
+        // obj.entries() 方法 吧一个对象转换为一个数组比如{userid：userId,goodsId：goodsId} 用entries()方法转换为数组就是
+        // [['userid', userId], ['goodsId', goodsId]] 用forEach遍历数组 
+
+        console.log('submitData 键值对:', Object.entries(submitData))
         Object.entries(submitData).forEach(([key, value]) => {
             console.log(key, ':', value)
             // 添加商品数据到 FormData
@@ -240,12 +244,18 @@ async function submitGoods() {
         for (let [key, value] of formData.entries()) {
             console.log('FormData 键值对:', key, ':', value)
         }
+        // 打印当前 cookie
+        console.log('当前 cookie:', document.cookie)
 
         // 发送POST请求添加商品（使用 FormData）
-        await axios.post('http://127.0.0.1:3000/admingoods/addgoods' + `/${userId}/${userInfo.role}`, formData,
+        await axios.post('http://localhost:3000/admingoods/addgoods' + `/${userId}/${userInfo.role}`, formData,
             {
-                // 设置请求头为 multipart/form-data 以支持文件上传
+                // 跨域请求时是否需要使用凭证  true 表示需要使用凭证  false 表示不需要使用凭证
+                // 凭证包括 Cookie、Authorization 头、XSRF 令牌等
+                // 跨域请求时，浏览器会自动添加凭证，但是服务器端需要配置允许跨域请求的策略
+                withCredentials: true,
                 headers: {
+                    // 设置请求头为 multipart/form-data 以支持文件上传
                     'Content-Type': 'multipart/form-data'
                 }
             }

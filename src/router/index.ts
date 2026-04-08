@@ -1,188 +1,103 @@
-import login from '@/views/login.vue'
-import { createRouter,createWebHistory } from 'vue-router'
+import { createRouter, createWebHistory } from 'vue-router'
+import { useLoginStore } from '@/pinia/loginstor'
+import axios from 'axios';
+import message from '../components/modal/message'
+// meta.glob是动态导入所有.vue文件，返回一个对象，键是组件路径，值是组件函数
+const pages = import.meta.glob('../views/**/page.ts', { eager: true, import: 'default' })
+// 拿到所有.vue文件的路径
+const components = import.meta.glob('../views/**/*.vue')
+const componentPaths = Object.keys(components);
+// console.log('pages', pages);
+console.log('components', components);
+// 2. 【核心修复】动态生成路由，强制 path 以 / 开头
+const routers = Object.entries(pages).map(([path, meta]: [string, any]) => {
+  console.log('path', path);
+  // replace 是替换字符串，将 path 中的 /page.ts 替换为 空字符串
+  const dirPath = path.replace('/page.ts', '');
+  console.log('dirPath', dirPath);
+  // console.log('componentPaths', componentPaths);
+  const compaths: any = componentPaths.find(key => key.startsWith(dirPath) && key.endsWith('.vue'));
+  console.log('compaths123', compaths);
+
+  // const compath = path.replace('page.ts', 'index.vue');
+  // console.log('compath', compath);
+  let routePath = path.replace('../views/', '').replace('/page.ts', '');
+  routePath = routePath ? `/${routePath}` : '/'; // 强制以 / 开头
+
+  const name = routePath.split('/').filter(Boolean).join('-') || 'index';
+  return {
+    path: routePath,
+    name,
+    component: () => components[compaths]?.(),
+    meta: meta.meta || meta
+  }
+})
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    //  登录
+    ...routers,
     {
-      path: '/login',
-      name: 'login',
-      component: login,
-      meta: {
-        title: '登录',
-        requireAuth: false, //未登录的用户才能访问
-      },
-    },
-    //  注册
-    {
-      path: '/register',
-      name: 'register',
-      meta: {
-        title: '注册',
-        requireAuth: false,//未登录的用户才能访问
-      },
-      component: () => import('@/views/register.vue'),
-    },
-    //  首页
-    {
-      path: '/home',
-      name: 'home',
-      meta: {
-        title: '首页',
-        requireAuth: false, //requireAuth是是否需要登录才能访问
-      },
-      component: () => import('@/views/home.vue'),
-    },
-    //  购物车
-    {
-      path: '/cart',
-      name: 'cart',
-      meta: {
-        title: '购物车',
-        requireAuth: false, //未登录的用户不可以访问
-      },
-      component: () => import('@/views/cart.vue'),
-    },
-    //  结算页面
-    {
-      path: '/jiesuan',
-      name: 'jiesuan',
-      meta: {
-        title: '结算',
-        requireAuth: true, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/jiesuan.vue'),
-    },
-    //  添加新地址
-    {
-      path: '/newaddress',
-      name: 'newaddress',
-      meta: {
-        title: '添加新地址',
-        requireAuth: true, //需要登录才能访问
-      },
-      component: () => import('@/views/newaddress.vue'),
-    },
-    //  个人中心
-    {
-      path: '/mycenter',
-      name: 'mycenter',
-      meta: {
-        title: '个人中心',
-        requireAuth: true, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/mycenter.vue'),
-    },
-    //  商家添加商品
-    {
-      path: '/addgoods',
-      name: 'addgoods',
-      meta: {
-        title: '添加商品',
-        requireAuth: true, //需要登录才能访问
-        //  角色权限判断
-        roles: ['admin'], //只有admin角色才能访问
-      },
-      component: () => import('@/views/addgoods.vue'),
-    },
-    //  404路由
-    {
-      path: '/:pathMatch(.*)*',
-      name: '404',
-      meta: {
-        title: '404',
-        requireAuth: false, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/404.vue'),
-    },
-    // 商品详细页面
-    {
-      path: '/goodsdetail',
-      name: 'goodsdetail',
-      meta: {
-        title: '商品详细',
-        requireAuth: false, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/goodsdetail.vue'),
-    },
-    // 在线客服页面
-    {
-      path: '/chat',
-      name: 'chat',
-      meta: {
-        title: '在线客服',
-        requireAuth: false, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/chat.vue'),
-    },
-    // tuodong
-    {
-      path: '/tuodongdiv',
-      name: 'tuodongdiv',
-      meta: {
-        title: '拖动',
-        requireAuth: false, //未登录的用户也可以访问
-      },
-      component: () => import('@/views/tuodongdiv.vue'),
-    },
-    //  默认跳转路由
-    {
-      //  默认跳转路由
       path: '/',
       redirect: '/home',
     },
-
+    // 【新增】404 兜底路由（匹配所有未定义路径）
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: '/404'
+    }
   ],
 })
-// 检查是否允许访问结算页面的函数
+
+// 工具函数：检查结算页面权限
 const canAccessJiesuan = () => {
-  // 从sessionStorage获取结算访问权限
-  const canAccess = sessionStorage.getItem('canAccessJiesuan');
-  return canAccess === 'true';
+  return sessionStorage.getItem('canAccessJiesuan') === 'true';
 }
 
-router.beforeEach((to, from, next) => {
-  // 每次路由跳转时都重新获取token，确保拿到最新的登录状态
-  const token = localStorage.getItem('token');
-  // 如果需要登录才能访问
-  if (to.meta.requireAuth) { //从to.meta.requireAuth获取是否需要登录才能访问
-    // 如果token不存在则跳转到登录页面
-    if (!token) {
-      // 跳转到登录页面
-      next('/login');
-      return;
+// 路由守卫（修复异步逻辑 + 权限校验）
+router.beforeEach(async (to, from, next) => {
+  // 提前获取 Pinia 实例（避免重复调用）
+  const loginStore = useLoginStore();
+
+  // 1. 已登录用户访问登录页，直接跳首页
+  if (to.name === 'login' && loginStore.islogin) {
+    return next('/home');
+  }
+
+  // 2. 需要登录的页面，未登录则跳登录
+  if (to.meta.requireAuth && !loginStore.islogin) {
+    return next('/login');
+  }
+
+  // 3. 【修复】addgoods 页面：先校验角色 → 再校验 Token（同步+异步顺序）
+  if (to.name === 'addgoods' && to.meta.tokenRequired && loginStore.islogin) {
+    // 第一步：校验角色权限（同步）
+    const hasAdminRole = localStorage.getItem('userInfo')?.includes('admin');
+    if (!hasAdminRole) {
+      message.error('您没有权限添加商品');
+      return next('/home');
+    }
+    // 第二步：异步校验 Token（await 等待结果）
+    try {
+      await verifyToken(loginStore.userInfo.userInfo.userId);
+      return next();
+    } catch (error) {
+      message.error('登录已失效，请重新登录');
+      loginStore.logout();
+      return next('/login');
     }
   }
 
-  // 结算页面特殊权限检查
-  // if (to.name === 'jiesuan') {
-  //     // 检查是否有权限访问结算页面
-  //     if (!canAccessJiesuan()) {
-  //         // 没有权限，跳转到购物车页面并提示
-  //         console.log('请从购物车页面点击结算按钮进入');
-  //         next('/cart');
-  //         return;
-  //     }
-  // }
-
-  // 角色权限判断
-  if (to.name === 'addgoods') { //从to.meta.roles获取角色权限
-    // 从localStorage.getItem('userInfo')获取用户角色 includes('admin')判断用户角色是否包含admin
-    const adminRole = localStorage.getItem('userInfo')?.includes('admin');
-    console.log(adminRole);
-
-    if (!adminRole) {
-      // 跳转到首页
-      // 提示用户没有权限
-      console.log('您没有权限添加商品');
-      next('/home');
-      return;
-    }
-  }
+  // 默认放行
   next();
 })
 
+// 【修复】异步 Token 验证（返回 Promise，支持 await）
+function verifyToken(userId: number) {
+  return axios.post('http://localhost:3000/tokenverify', { userId })
+    .then((res) => {
+      if (res.data.code !== 200) throw new Error('token无效');
+    })
+}
+
 export default router
-
-

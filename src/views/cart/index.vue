@@ -61,7 +61,7 @@ import { ref, computed, watch } from 'vue';
 
 const cartStore = useCartStore()
 const items = computed(() => cartStore.cartlist);
-console.log('awihdkiawhduihawiduhawiud',items.value);
+console.log('awihdkiawhduihawiduhawiud', items.value);
 
 // 单选
 const select = (goodsId: string) => {
@@ -87,7 +87,7 @@ watch(() => cartStore.cartlist, (newVal, oldVal) => {
     // 购物车商品列表发生变化时更新
     console.log('购物车商品数量:', cartStore);
     console.log('购物车数据变化:', newVal);
-    
+
 }, { deep: true })
 
 </script>

@@ -1,98 +1,104 @@
 <template>
-    <div class="new-address-page">
-        <div class="page-header">
-            <h1>添加新地址</h1>
-            <p>请填写您的收货地址信息</p>
-        </div>
+    <div class="new-address-container">
+        <div class="new-address-page">
+            <div class="page-header">
+                <h1>添加新地址</h1>
+                <p>请填写您的收货地址信息</p>
+            </div>
 
-        <div class="address-form-container">
-            <form class="address-form" @submit.prevent="saveAddress">
-                <div class="form-group">
-                    <label for="name" class="form-label">收货人姓名</label>
-                    <input type="text" id="name" name="name" class="form-input" placeholder="请输入收货人姓名"
-                        v-model="formData.name" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="phone" class="form-label">手机号码</label>
-                    <input type="tel" id="phone" name="phone" class="form-input" placeholder="请输入手机号码"
-                        v-model="formData.phone" required>
-                </div>
-
-                <div class="form-group">
-                    <label for="province" class="form-label">所在地区</label>
-                    <div class="region-selector">
-                        <select class="region-select" id="province" v-model="formData.province">
-                            <option value="">请选择省份</option>
-                            <option value="北京市">北京市</option>
-                            <option value="上海市">上海市</option>
-                            <option value="广东省">广东省</option>
-                        </select>
-                        <select class="region-select" id="city" v-model="formData.city">
-                            <option value="">请选择城市</option>
-                            <option v-if="formData.province === '北京市'" value="北京市">北京市</option>
-                            <option v-if="formData.province === '上海市'" value="上海市">上海市</option>
-                            <option v-if="formData.province === '广东省'" value="广东省">广东省</option>
-                        </select>
-                        <select class="region-select" id="district" v-model="formData.district">
-                            <option value="">请选择区县</option>
-                            <option v-if="formData.city === '北京市'" value="北京市">北京市</option>
-                            <option v-if="formData.city === '上海市'" value="上海市">上海市</option>
-                            <option v-if="formData.city === '广东省'" value="广东省">广东省</option>
-                        </select>
+            <div class="address-form-container">
+                <form class="address-form" @submit.prevent="saveAddress">
+                    <div class="form-group">
+                        <label for="name" class="form-label">收货人姓名</label>
+                        <input type="text" id="name" name="name" class="form-input" placeholder="请输入收货人姓名"
+                            v-model="formData.name" required>
                     </div>
-                </div>
 
-                <div class="form-group">
-                    <label for="address" class="form-label">详细地址</label>
-                    <textarea id="address" name="address" class="form-textarea" placeholder="请输入详细地址（街道、门牌号等）" rows="3"
-                        v-model="formData.detail"></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label class="form-label">地址标签</label>
-                    <div class="tag-selector">
-                        <button type="button" class="tag-option" :class="{ active: formData.tag === 'home' }"
-                            @click="formData.tag = 'home'">家</button>
-                        <button type="button" class="tag-option" :class="{ active: formData.tag === 'company' }"
-                            @click="formData.tag = 'company'">公司</button>
-                        <button type="button" class="tag-option" :class="{ active: formData.tag === 'school' }"
-                            @click="formData.tag = 'school'">学校</button>
-                        <button type="button" class="tag-option" :class="{ active: formData.tag === 'other' }"
-                            @click="formData.tag = 'other'">其他</button>
+                    <div class="form-group">
+                        <label for="phone" class="form-label">手机号码</label>
+                        <input type="tel" id="phone" name="phone" class="form-input" placeholder="请输入手机号码"
+                            v-model="formData.phone" required>
                     </div>
-                </div>
 
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="default" name="default" class="checkbox-input"
-                            v-model="formData.isDefault">
-                        <span class="checkbox-custom"></span>
-                        <span class="checkbox-text">设为默认地址</span>
-                    </label>
-                </div>
+                    <div class="form-group">
+                        <label for="province" class="form-label">所在地区</label>
+                        <div class="region-selector">
+                            <select class="region-select" id="province" v-model="formData.province">
+                                <option value="">请选择省份</option>
+                                <option value="北京市">北京市</option>
+                                <option value="上海市">上海市</option>
+                                <option value="广东省">广东省</option>
+                            </select>
+                            <select class="region-select" id="city" v-model="formData.city">
+                                <option value="">请选择城市</option>
+                                <option v-if="formData.province === '北京市'" value="北京市">北京市</option>
+                                <option v-if="formData.province === '上海市'" value="上海市">上海市</option>
+                                <option v-if="formData.province === '广东省'" value="广东省">广东省</option>
+                            </select>
+                            <select class="region-select" id="district" v-model="formData.district">
+                                <option value="">请选择区县</option>
+                                <option v-if="formData.city === '北京市'" value="北京市">北京市</option>
+                                <option v-if="formData.city === '上海市'" value="上海市">上海市</option>
+                                <option v-if="formData.city === '广东省'" value="广东省">广东省</option>
+                            </select>
+                        </div>
+                    </div>
 
-                <div class="form-actions">
-                    <button type="button" class="cancel-btn" @click="$router.back()">取消</button>
-                    <button type="submit" class="save-btn">保存地址</button>
-                </div>
-            </form>
+                    <div class="form-group">
+                        <label for="address" class="form-label">详细地址</label>
+                        <textarea id="address" name="address" class="form-textarea" placeholder="请输入详细地址（街道、门牌号等）" rows="3"
+                            v-model="formData.detail"></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">地址标签</label>
+                        <div class="tag-selector">
+                            <button type="button" class="tag-option" :class="{ active: formData.tag === 'home' }"
+                                @click="formData.tag = 'home'">家</button>
+                            <button type="button" class="tag-option" :class="{ active: formData.tag === 'company' }"
+                                @click="formData.tag = 'company'">公司</button>
+                            <button type="button" class="tag-option" :class="{ active: formData.tag === 'school' }"
+                                @click="formData.tag = 'school'">学校</button>
+                            <button type="button" class="tag-option" :class="{ active: formData.tag === 'other' }"
+                                @click="formData.tag = 'other'">其他</button>
+                        </div>
+                    </div>
+
+                    <div class="form-group checkbox-group">
+                        <label class="checkbox-label">
+                            <input type="checkbox" id="default" name="default" class="checkbox-input"
+                                v-model="formData.isDefault">
+                            <span class="checkbox-custom"></span>
+                            <span class="checkbox-text">设为默认地址</span>
+                        </label>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="cancel-btn" @click="$router.back()">取消</button>
+                        <button type="submit" class="save-btn">保存地址</button>
+                    </div>
+                </form>
+            </div>
         </div>
+        <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="popupType"></tanchuang>
     </div>
-    <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="popupType"></tanchuang>
 </template>
 
 <script lang="ts" setup>
-import { ref, reactive, watch } from 'vue'
+import { ref, reactive, watch, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
 import Tanchuang from '@/components/modal/tanchuang.vue'
 import { useLoginStore } from '@/pinia/loginstor'
-const userId = useLoginStore().userInfo.userInfo.userId
+const loginStore = useLoginStore();
+const userId = computed(() => {
+    if (!loginStore.userInfo) return null;
+    return loginStore.userInfo.userId || loginStore.userInfo.userInfo?.userId || null;
+});
 const router = useRouter()
 const showPopup = ref(false)
 const popupMessage = ref('')
-const popupType = ref()
+const popupType = ref('')
 // 表单数据
 const formData = reactive({
     name: '',
@@ -140,10 +146,17 @@ const saveAddress = () => {
             showPopupMessage('请选择区县', 'error')
             return
         }
+        
+        // 检查userId是否存在
+        if (!userId.value) {
+            showPopupMessage('用户未登录，请先登录', 'error')
+            return
+        }
+        
         const baseURL = 'http://127.0.0.1:3000/userads/address/';
-        axios.post(`${baseURL}` + userId, {
+        axios.post(`${baseURL}` + userId.value, {
             ...formData,
-            userId: userId
+            userId: userId.value
         }).then(response => {
             if (response.status === 201) {
                 showPopupMessage('地址保存成功！', 'success')

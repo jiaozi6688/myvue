@@ -1,43 +1,45 @@
 <template>
-    <!-- 弹窗设置 -->
-    <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="popupType"></tanchuang>
-    <div class="register-container">
-        <div class="register-form">
-            <h1>用户注册</h1>
-            <form id="registerForm" autocomplete="off">
-                <div>
-                    <!-- 手机号 验证手机号格式是否正确 -->
-                    <label for="phone">手机号:</label>
-                    <!-- required 是 HTML 表单属性，用于指定输入字段必须填写 鼠标取消聚焦时 -->
-                    <input type="text" id="phone" name="phone" @blur="validatePhone(phone)" v-model="phone" required>
-                </div>
-                <div>
-                    <label for="username" @blur="validateUsername(username)">用户名：</label>
-                    <!-- required 是 HTML 表单属性，用于指定输入字段必须填写 -->
-                    <input type="text" id="username" name="username" v-model="username" required>
-                </div>
-                <div>
-                    <label for="password">密码：</label>
-                    <input type="password" id="password" name="password" v-model="password" required>
-                </div>
-                <div>
-                    <label for="confirmPassword">确认密码：</label>
-                    <input type="password" id="confirmPassword" name="confirmPassword" v-model="confirmPassword"
-                        required @blur="register(confirmPassword)">
-                </div>
-                <div>
-                    <!-- 角色选择 -->
-                    <label for="role">角色：</label>
-                    <select id="role" name="role" v-model="role">
-                        <option value="user">普通用户</option>
-                        <option value="admin">管理员</option>
-                    </select>
-                </div>
-                <div>
-                    <!-- 阻止表单默认提交行为 -->
-                    <input value="注册" @submit.prevent="addregister" @click="addregister">
-                </div>
-            </form>
+    <div class="register-root">
+        <!-- 弹窗设置 -->
+        <tanchuang :showPopup="showPopup" :popupMessage="popupMessage" :type="popupType"></tanchuang>
+        <div class="register-container">
+            <div class="register-form">
+                <h1>用户注册</h1>
+                <form id="registerForm" autocomplete="off">
+                    <div>
+                        <!-- 手机号 验证手机号格式是否正确 -->
+                        <label for="phone">手机号:</label>
+                        <!-- required 是 HTML 表单属性，用于指定输入字段必须填写 鼠标取消聚焦时 -->
+                        <input type="text" id="phone" name="phone" @blur="validatePhone(phone)" v-model="phone" required>
+                    </div>
+                    <div>
+                        <label for="username" @blur="validateUsername(username)">用户名：</label>
+                        <!-- required 是 HTML 表单属性，用于指定输入字段必须填写 -->
+                        <input type="text" id="username" name="username" v-model="username" required>
+                    </div>
+                    <div>
+                        <label for="password">密码：</label>
+                        <input type="password" id="password" name="password" v-model="password" required>
+                    </div>
+                    <div>
+                        <label for="confirmPassword">确认密码：</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" v-model="confirmPassword"
+                            required @blur="register(confirmPassword)">
+                    </div>
+                    <div>
+                        <!-- 角色选择 -->
+                        <label for="role">角色：</label>
+                        <select id="role" name="role" v-model="role">
+                            <option value="user">普通用户</option>
+                            <option value="admin">管理员</option>
+                        </select>
+                    </div>
+                    <div>
+                        <!-- 阻止表单默认提交行为 -->
+                        <input value="注册" @submit.prevent="addregister" @click="addregister">
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </template>

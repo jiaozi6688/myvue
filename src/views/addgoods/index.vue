@@ -106,11 +106,6 @@ function toggleImageUpload(e: any) {
 
 }
 
-
-
-
-
-
 // 处理图片上传
 async function handleImageChange(e: any) {
     // 1. 检查是否有文件被选择 选择了文件，将文件赋值给 selectedFile 变量

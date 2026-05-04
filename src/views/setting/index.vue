@@ -1,4 +1,7 @@
 <template >
+    <div class="setting-container">
+        <h1>设置页面</h1>
+    </div>
 </template>
 <script setup lang="ts">
 import message from '@/components/modal/message'

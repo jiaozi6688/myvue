@@ -1,23 +1,25 @@
 <template>
-    <div class="ai" @click="showChat = !showChat">
-        <p>AI 聊天</p>
-    </div>
-    <div class="chat" v-show="showChat">
-        <div class="chat-header">AI 聊天助手</div>
-        <!-- 新增ref，用于自动滚动 -->
-        <div class="chat-body" ref="chatBodyRef">
-            <template v-for="(msg, index) in messages" :key="index">
-                <div class="message" :class="msg.isAI ? 'ai-message' : 'user-message'">
-                    <p>{{ msg.content }}</p>
-                </div>
-                <span class="read-status" :class="msg.isAI ? 'ai-read' : 'user-read'">
-                    {{ msg.read ? "已读" : "" }}
-                </span>
-            </template>
+    <div class="chat-container">
+        <div class="ai" @click="showChat = !showChat">
+            <p>AI 聊天</p>
         </div>
-        <div class="chat-footer">
-            <input v-model="inputMessage" class="chat-input" placeholder="输入你的问题..." @keyup.enter="sendMessage" />
-            <button class="chat-button" @click="sendMessage">发送</button>
+        <div class="chat" v-show="showChat">
+            <div class="chat-header">AI 聊天助手</div>
+            <!-- 新增ref，用于自动滚动 -->
+            <div class="chat-body" ref="chatBodyRef">
+                <template v-for="(msg, index) in messages" :key="index">
+                    <div class="message" :class="msg.isAI ? 'ai-message' : 'user-message'">
+                        <p>{{ msg.content }}</p>
+                    </div>
+                    <span class="read-status" :class="msg.isAI ? 'ai-read' : 'user-read'">
+                        {{ msg.read ? "已读" : "" }}
+                    </span>
+                </template>
+            </div>
+            <div class="chat-footer">
+                <input v-model="inputMessage" class="chat-input" placeholder="输入你的问题..." @keyup.enter="sendMessage" />
+                <button class="chat-button" @click="sendMessage">发送</button>
+            </div>
         </div>
     </div>
 </template>
@@ -101,11 +103,11 @@ const sendMessage = () => {
             // 标记已读
             const len = messages.value.length;
             // 如果有2条以上消息，且最后2条消息分别是用户消息和AI消息占位
-            if (len >= 2
-                && messages.value[len - 1]
-                && messages.value[len - 2]) {
-                messages.value[len - 1].read = true;
-                messages.value[len - 2].read = true;
+            if (len >= 2) {
+                const lastMsg = messages.value[len - 1];
+                const secondLastMsg = messages.value[len - 2];
+                if (lastMsg) lastMsg.read = true;
+                if (secondLastMsg) secondLastMsg.read = true;
             }
             scrollToBottom();
             return;

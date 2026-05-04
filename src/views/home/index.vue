@@ -1,130 +1,131 @@
 <template>
-  <el-container class="container">
-    <!-- 头部占位元素 -->
-    <div v-if="isScroll" class="header-placeholder"></div>
-    <!--============================= 头部 ========================================-->
-    <el-header :class="['header', isScroll ? 'header headerfixed' : '']">
-      <!-- 商城标题，图标，导航菜单，用户登录注册，购物车 都放在一行-->
-      <!-- 商城标题，图标 -->
-      <div>
-        <img src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="logo">
-        <h1>商城名称</h1>
-      </div>
-      <!-- 导航菜单 -->
-      <div id="daohang" :class="zk ? 'daohang' : 'daohang1'">
-        <span v-if="zk" @click="showdh = !showdh">
-          <el-icon>
-            <Menu />
-          </el-icon>
-        </span>
-        <ul v-show="showdh">
-          <li>首页</li>
-          <li>商品分类</li>
-          <li>商品列表</li>
-          <li>购物车</li>
-          <li>用户中心</li>
-        </ul>
-      </div>
-
-      <!-- 搜索框  -->
-      <div>
-        <el-input v-model="searchText" @keyup.enter="handleSearch(searchText)" placeholder="请输入搜索内容">
-          {{ searchText }}
-        </el-input>
-      </div>
-
-      <!-- 用户头像 名称 -->
-      <div>
-        <!-- 用户头像 当鼠标进去头像的时候 放大并显示用户信息弹窗 鼠标离开弹窗信息之后返回原始大小 -->
-        <!-- 'imghover': showUserInfo  是一个类名 当showUserInfo为true时 才会添加这个类名 -->
-        <div @mouseenter="showUserInfo = true" @mouseleave="showUserInfo = false">
-          <div>
-            <img :class="[showUserInfo ? 'imghover' : '']" v-if="loginStore.islogin"
-              src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="">
-            <a v-if="!loginStore.islogin" href="/login">点击登录</a>
-          </div>
-          <!-- 用户弹窗 -->
-          <!--  -->
-          <div class="user-info" v-if="showUserInfo && isLogin">
-            <!-- 鼠标样式 -->
-            <p class="user-info-header" style="cursor: pointer;">
-              <el-icon>
-                <User />
-              </el-icon>
-              {{ loginStore.userInfo?.username || '用户名称' }}
-            </p>
-            <p style="cursor: pointer;">
-              <el-icon>
-                <Message />
-              </el-icon>
-              {{ loginStore.userInfo?.email || '用户邮箱' }}
-            </p>
-            <RouterLink to="/addgoods" v-if="role === 'admin'">
-              <el-icon>
-                <UserFilled />
-              </el-icon>
-              上架商品
-            </RouterLink>
-            <RouterLink to="/mycenter">
-              <el-icon>
-                <UserFilled />
-              </el-icon>
-              个人中心
-            </RouterLink>
-            <RouterLink to="/login" @click="loginStore.logout">
-              <el-icon>
-                <SwitchButton />
-              </el-icon>
-              退出登录
-            </RouterLink>
-            <RouterLink to="/tuodongdiv">
-              <el-icon>
-                <SwitchButton />
-              </el-icon>
-              拖动
-            </RouterLink>
-          </div>
-        </div>
-      </div>
-      <!-- 购物车 -->
-      <div>
+  <div class="home-container">
+    <el-container class="container">
+      <!-- 头部占位元素 -->
+      <div v-if="isScroll" class="header-placeholder"></div>
+      <!--============================= 头部 ========================================-->
+      <el-header :class="['header', isScroll ? 'header headerfixed' : '']">
+        <!-- 商城标题，图标，导航菜单，用户登录注册，购物车 都放在一行-->
+        <!-- 商城标题，图标 -->
         <div>
-          <RouterLink to="/cart" target="_blank">
-            <span> <el-icon><shopping-cart /></el-icon></span>
-            <p>
-              购物车({{ cartStore.cartlist.length }})
-            </p>
-          </RouterLink>
+          <img src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="logo">
+          <h1>商城名称</h1>
         </div>
-      </div>
-    </el-header>
-    <!-- ================主体================ -->
-    <el-main class="main">
-      <!-- 第一个div是合并的，占满整行 -->
-      <div>
-        <img src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="">
-      </div>
-      <!-- 商品分类 -->
-      <div v-for="item in goodslist" :key="item._id" @click="handleClick(item._id)">
-        <img :src="`http://localhost:3000${item.image}`" alt="">
-        <p class="title">{{ item.name }}</p>
-        <p class="desc">{{ item.description }}</p>
-        <p class="price">¥{{ item.price }}</p>
-      </div>
-    </el-main>
-    <!-- ================底部================ -->
-    <el-footer class="footer">
-      <p>copyright @ 2023</p>
-      <p>联系我们：1234567890</p>
-      <p>地址：中国 北京</p>
-      <p>邮箱：123@qq.com</p>
-      <p>客服微信：1234567890</p>
-      <p>客服 QQ：1234567890</p>
-      <p>客服电话：1234567890</p>
+        <!-- 导航菜单 -->
+        <div id="daohang" :class="zk ? 'daohang' : 'daohang1'">
+          <span v-if="zk" @click="showdh = !showdh">
+            <el-icon>
+              <Menu />
+            </el-icon>
+          </span>
+          <ul v-show="showdh">
+            <li>首页</li>
+            <li>商品分类</li>
+            <li>商品列表</li>
+            <li>购物车</li>
+            <li>用户中心</li>
+          </ul>
+        </div>
 
-    </el-footer>
-  </el-container>
+        <!-- 搜索框  -->
+        <div>
+          <el-input v-model="searchText" @keyup.enter="handleSearch(searchText)" placeholder="请输入搜索内容">
+            {{ searchText }}
+          </el-input>
+        </div>
 
+        <!-- 用户头像 名称 -->
+        <div>
+          <!-- 用户头像 当鼠标进去头像的时候 放大并显示用户信息弹窗 鼠标离开弹窗信息之后返回原始大小 -->
+          <!-- 'imghover': showUserInfo  是一个类名 当showUserInfo为true时 才会添加这个类名 -->
+          <div @mouseenter="showUserInfo = true" @mouseleave="showUserInfo = false">
+            <div>
+              <img :class="[showUserInfo ? 'imghover' : '']" v-if="loginStore.islogin"
+                src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="">
+              <a v-if="!loginStore.islogin" href="/login">点击登录</a>
+            </div>
+            <!-- 用户弹窗 -->
+            <!--  -->
+            <div class="user-info" v-if="showUserInfo && isLogin">
+              <!-- 鼠标样式 -->
+              <p class="user-info-header" style="cursor: pointer;">
+                <el-icon>
+                  <User />
+                </el-icon>
+                {{ loginStore.userInfo?.username || '用户名称' }}
+              </p>
+              <p style="cursor: pointer;">
+                <el-icon>
+                  <Message />
+                </el-icon>
+                {{ loginStore.userInfo?.email || '用户邮箱' }}
+              </p>
+              <RouterLink to="/addgoods" v-if="role === 'admin'">
+                <el-icon>
+                  <UserFilled />
+                </el-icon>
+                上架商品
+              </RouterLink>
+              <RouterLink to="/mycenter">
+                <el-icon>
+                  <UserFilled />
+                </el-icon>
+                个人中心
+              </RouterLink>
+              <RouterLink to="/login" @click="loginStore.logout">
+                <el-icon>
+                  <SwitchButton />
+                </el-icon>
+                退出登录
+              </RouterLink>
+              <RouterLink to="/tuodongdiv">
+                <el-icon>
+                  <SwitchButton />
+                </el-icon>
+                拖动
+              </RouterLink>
+            </div>
+          </div>
+        </div>
+        <!-- 购物车 -->
+        <div>
+          <div>
+            <RouterLink to="/cart" target="_blank">
+              <span> <el-icon><shopping-cart /></el-icon></span>
+              <p>
+                购物车({{ cartStore.cartlist.length }})
+              </p>
+            </RouterLink>
+          </div>
+        </div>
+      </el-header>
+      <!-- ================主体================ -->
+      <el-main class="main">
+        <!-- 第一个div是合并的，占满整行 -->
+        <div>
+          <img src="/1bde467bd1f2ad1227592b995a2c364d.jpg" alt="">
+        </div>
+        <!-- 商品分类 -->
+        <div v-for="item in goodslist" :key="item._id" @click="handleClick(item._id)">
+          <img :src="`http://localhost:3000${item.image}`" alt="">
+          <p class="title">{{ item.name }}</p>
+          <p class="desc">{{ item.description }}</p>
+          <p class="price">¥{{ item.price }}</p>
+        </div>
+      </el-main>
+      <!-- ================底部================ -->
+      <el-footer class="footer">
+        <p>copyright @ 2023</p>
+        <p>联系我们：1234567890</p>
+        <p>地址：中国 北京</p>
+        <p>邮箱：123@qq.com</p>
+        <p>客服微信：1234567890</p>
+        <p>客服 QQ：1234567890</p>
+        <p>客服电话：1234567890</p>
+
+      </el-footer>
+    </el-container>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -136,6 +137,8 @@ import axios from 'axios';
 import router from '@/router';
 import searchGoods from '@/api/search';
 import message from '@/components/modal/message';
+// 觕入触底更新数据函数
+import scrollBottom from '@/utils/scrollBottom';
 // 初始化登录状态
 const loginStore = useLoginStore();
 const role = loginStore.userInfo?.userInfo?.role;
@@ -272,6 +275,36 @@ const handleClick = (id: string) => {
 //   });
 //   window.open(routeData.href, '_blank');
 // }
+// 触底更新数据
+const throttle = (fn: Function, wait: number = 500) => {
+  let lastTime: any = null;
+  return function (this: any, ...args: any[]) {
+    const now = Date.now();
+    if (lastTime === null || now - lastTime > wait) {
+      fn.apply(this, args);
+      lastTime = now; // 更新上次执行时间
+    }
+  }
+}
+const throttleScrollBottom = throttle(() => {
+  scrollBottom('http://127.0.0.1:3000/getgoodslist/', goodslist.value);
+})
+onMounted(() => {
+  window.addEventListener('scroll', throttleScrollBottom, { passive: true });
+})
+onUnmounted(() => {
+  window.removeEventListener('scroll', throttleScrollBottom);
+})
+
+
+
+
+
+
+
+
+
+
 
 // 监听滚动事件  挂载时添加事件监听
 onMounted(() => {
@@ -285,6 +318,17 @@ onUnmounted(() => {
   window.removeEventListener('scroll', handleScroll);
   window.removeEventListener('resize', handleResize);
 });
+
+
+
+
+
+
+
+
+
+
+
 </script>
 <style lang="scss" scoped>
 /* 全局修复：消除页面横向滚动条 */
@@ -581,6 +625,7 @@ body {
 @media (max-width: 1024px) and (min-width: 768px) {
   .header {
     height: 65px;
+    display: flex;
   }
 
   .header>div:nth-child(3) {
@@ -612,6 +657,26 @@ body {
     // 小屏幕允许头部换行
     flex-wrap: wrap;
     justify-content: space-between;
+
+  }
+
+  .header>div:nth-child(2) {
+    position: relative;
+
+    ul {
+      min-width: 70px;
+      min-height: 100px;
+      position: absolute;
+      top: 30px;
+      left: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 5px;
+      // transparent 背景透明，不遮挡内容显示
+      backdrop-filter: blur(5px);
+      background-color: rgba(228, 241, 247, 0.705);
+    }
   }
 
   .headerfixed {
@@ -666,10 +731,11 @@ body {
 
 
   // 购物车文字隐藏，只留图标
-  .header>div:nth-child(5){
+  .header>div:nth-child(5) {
     p {
       display: none;
     }
+
     span {
       font-size: 20px;
     }
@@ -715,5 +781,97 @@ body {
     width: 100px;
   }
 
+}
+
+// 4. 针对390x844屏幕尺寸的优化
+@media (max-width: 390px) {
+
+  // 头部布局优化
+  .header {
+    height: 55px;
+    padding: 0 5px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+  }
+
+  .headerfixed {
+    padding: 5px !important;
+  }
+
+  // 商城标题和Logo
+  .header>div:nth-child(1) {
+    flex: 1;
+    padding: 0 5px;
+
+    img {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    h1 {
+      display: none; // 隐藏标题，节省空间
+    }
+  }
+
+  // 导航栏适配
+  .header>div:nth-child(2) {
+    flex: 2;
+
+    ul {
+      gap: 5px;
+
+      li {
+        font-size: 0.8rem;
+      }
+    }
+  }
+
+  // 搜索框适配
+  .header>div:nth-child(3) {
+    width: 140px;
+
+    &:focus-within {
+      width: 160px;
+    }
+  }
+
+  // 用户头像适配
+  .header>div:nth-child(4) {
+    flex: 0;
+
+    img {
+      width: 2rem;
+      height: 2rem;
+    }
+
+    .imghover {
+      transform: scale(1.3) translateY(10px) translateX(-5px);
+    }
+
+    .user-info {
+      width: 180px;
+      font-size: 0.75rem;
+      top: calc(90% + 10px);
+      right: -30px;
+    }
+  }
+
+  // 购物车适配
+  .header>div:nth-child(5) {
+    flex: 0.2;
+
+    p {
+      display: none; // 隐藏文字，只留图标
+    }
+
+    span {
+      font-size: 18px;
+    }
+  }
+
+  // 头部占位符高度适配
+  .header-placeholder {
+    height: 55px;
+  }
 }
 </style>

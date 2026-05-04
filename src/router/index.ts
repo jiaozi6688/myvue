@@ -8,16 +8,16 @@ const pages = import.meta.glob('../views/**/page.ts', { eager: true, import: 'de
 const components = import.meta.glob('../views/**/*.vue')
 const componentPaths = Object.keys(components);
 // console.log('pages', pages);
-console.log('components', components);
+// console.log('components', components);
 // 2. 【核心修复】动态生成路由，强制 path 以 / 开头
 const routers = Object.entries(pages).map(([path, meta]: [string, any]) => {
-  console.log('path', path);
+  // console.log('path', path);
   // replace 是替换字符串，将 path 中的 /page.ts 替换为 空字符串
   const dirPath = path.replace('/page.ts', '');
-  console.log('dirPath', dirPath);
+  // console.log('dirPath', dirPath);
   // console.log('componentPaths', componentPaths);
   const compaths: any = componentPaths.find(key => key.startsWith(dirPath) && key.endsWith('.vue'));
-  console.log('compaths123', compaths);
+  // console.log('compaths123', compaths);
 
   // const compath = path.replace('page.ts', 'index.vue');
   // console.log('compath', compath);
@@ -58,7 +58,9 @@ const canAccessJiesuan = () => {
 router.beforeEach(async (to, from, next) => {
   // 提前获取 Pinia 实例（避免重复调用）
   const loginStore = useLoginStore();
-
+  if (to.name === 'jiesuan' && !canAccessJiesuan()) {
+    return next('/cart');
+  }
   // 1. 已登录用户访问登录页，直接跳首页
   if (to.name === 'login' && loginStore.islogin) {
     return next('/home');

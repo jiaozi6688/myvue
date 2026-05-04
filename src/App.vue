@@ -1,14 +1,23 @@
 <template>
   <RouterView v-slot="{ Component }">
-    <transition name="fade" mode="out-in">
+    <transition name="fade">
       <component :is="Component" />
     </transition>
   </RouterView>
-  <ChatAI></ChatAI>
+  <ChatAI v-if="!isAuthPage"></ChatAI>
 </template>
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import { RouterView, useRoute } from 'vue-router'
 import ChatAI from '@/views/ChatAI/ai.vue'
+import { computed } from 'vue'
+
+const route = useRoute()
+
+// 计算当前是否为认证页面（登录或注册）
+const isAuthPage = computed(() => {
+  const authRoutes = ['/login', '/register']
+  return authRoutes.includes(route.path)
+})
 </script>
 <style>
 * {

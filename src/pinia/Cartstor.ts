@@ -160,8 +160,8 @@ export const useCartStore = defineStore('cart', () => {
     // 获取购物车数据
     function getCartList() {
         // 登录状态已在应用启动时初始化，无需重复调用
-        console.log('当前登录状态:', loginStore.islogin);
-        console.log('用户信息对象:', loginStore.userInfo);
+        // console.log('当前登录状态:', loginStore.islogin);
+        // console.log('用户信息对象:', loginStore.userInfo);
         // 查找userId，考虑嵌套结构和多种可能的字段名
         let userId = null;
         if (loginStore.userInfo) {

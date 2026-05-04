@@ -1,174 +1,48 @@
 <template>
     <!-- 页面头部 -->
-    <header class="checkout-header">
-        <div class="header-content">
-            <h1>订单结算</h1>
-            <div class="step-indicator">
-                <div class="step active">
-                    <span class="step-number">1</span>
-                    <span class="step-text">确认订单</span>
-                </div>
-                <div class="step-line"></div>
-                <div class="step">
-                    <span class="step-number">2</span>
-                    <span class="step-text">支付订单</span>
-                </div>
-                <div class="step-line"></div>
-                <div class="step">
-                    <span class="step-number">3</span>
-                    <span class="step-text">完成</span>
+    <div>
+        <header class="checkout-header">
+            <div class="header-content">
+                <h1>订单结算</h1>
+                <div class="step-indicator">
+                    <div class="step active">
+                        <span class="step-number">1</span>
+                        <span class="step-text">确认订单</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <span class="step-number">2</span>
+                        <span class="step-text">支付订单</span>
+                    </div>
+                    <div class="step-line"></div>
+                    <div class="step">
+                        <span class="step-number">3</span>
+                        <span class="step-text">完成</span>
+                    </div>
                 </div>
             </div>
-        </div>
-    </header>
+        </header>
 
-    <!-- 主要内容区域 -->
-    <main class="checkout-main">
-        <!-- 收货地址区域 -->
-        <section class="section">
-            <div class="section-header">
-                <h2>收货地址</h2>
-                <button class="section-action" id="manageAddressBtn" @click="showAddressModal = true">管理地址</button>
-            </div>
-            <!-- 地址列表 -->
-            <div class="address-list">
-                <div v-for="address in addresses" :key="address._id" class="address-card"
-                    :class="{ active: selectedAddressId === address._id }" @click="selectAddress(address._id)">
-                    <div class="address-info">
-                        <div class="recipient-info">
-                            <span class="recipient-name">{{ address.name }}</span>
-                            <span class="recipient-phone">{{ address.phone }}</span>
-                        </div>
-                        <p class="address-detail">{{ address.province }} {{ address.city }} {{ address.district }} {{
-                            address.detail }}</p>
-                        <div class="address-tags">
-                            <span v-if="address.isDefault" class="tag default">默认</span>
-                            <span class="tag">{{ getTagText(address.tag) }}</span>
-                        </div>
-                    </div>
-                    <div class="address-actions">
-                        <button class="edit-btn">编辑</button>
-                        <button class="delete-btn" @click="deleteAddress(address._id)">删除</button>
-                    </div>
+        <!-- 主要内容区域 -->
+        <main class="checkout-main">
+            <!-- 收货地址区域 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>收货地址</h2>
+                    <button class="section-action" id="manageAddressBtn" @click="showAddressModal = true">管理地址</button>
                 </div>
-            </div>
-        </section>
-
-        <!-- 商品信息区域 -->
-        <section class="section">
-            <div class="section-header">
-                <h2>商品信息</h2>
-                <span class="product-count">{{ selectedGoods.length }}件商品</span>
-            </div>
-            <!-- 商品列表展示需要结算的商品 -->
-            <div class="products-list">
-                <div v-for="item in selectedGoods" :key="item.goodsId" class="product-card">
-                    <div class="product-image">
-                        <img alt="商品图片" :src="`http://127.0.0.1:3000${item.image}`" :title="item.name">
-                    </div>
-                    <div class="product-info">
-                        <h3 class="product-name">{{ item.name }}</h3>
-                        <p class="product-spec">规格：{{ '无' }}</p>
-                        <p class="product-count">数量：{{ item.count }}</p>
-                    </div>
-                    <div class="product-price">
-                        <span class="unit-price">￥{{ item.price }}</span>
-                        <span class="quantity">x{{ item.count }}</span>
-                        <!-- 商品总价 -->
-                        <span class="total-price">￥{{ }}</span>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 支付方式区域 -->
-        <section class="section">
-            <div class="section-header">
-                <h2>支付方式</h2>
-            </div>
-            <div class="payment-methods">
-                <div class="payment-method active">
-                    <div class="method-icon alipay-icon"></div>
-                    <span class="method-name">支付宝</span>
-                    <div class="method-check">
-                        <div class="checkmark"></div>
-                    </div>
-                </div>
-                <div class="payment-method">
-                    <div class="method-icon wechat-icon"></div>
-                    <span class="method-name">微信支付</span>
-                    <div class="method-check">
-                        <div class="checkmark"></div>
-                    </div>
-                </div>
-                <div class="payment-method">
-                    <div class="method-icon bank-icon"></div>
-                    <span class="method-name">银行卡</span>
-                    <div class="method-check">
-                        <div class="checkmark"></div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 订单信息区域 -->
-        <section class="section">
-            <div class="section-header">
-                <h2>订单信息</h2>
-            </div>
-            <div class="order-summary">
-                <div class="summary-item">
-                    <span>商品总价：</span>
-                    <span>￥{{ cartStore.allprice }}</span>
-                </div>
-                <div class="summary-item">
-                    <span>运费：</span>
-                    <span>￥0.00</span>
-                </div>
-                <div class="summary-item discount"><span>优惠:</span>
-                    <span>-￥20.00</span>
-                </div>
-                <div class="summary-item total">
-                    <span>实付金额：</span>
-                    <span class="final-price">￥{{ cartStore.allprice }}</span>
-                </div>
-            </div>
-        </section>
-    </main>
-
-    <!-- 底部操作栏 -->
-    <footer class="checkout-footer">
-        <div class="footer-content">
-            <div class="price-summary">
-                <span class="label">应付金额：</span>
-                <span class="price">￥{{ cartStore.allprice }}</span>
-            </div>
-            <button class="submit-order-btn" id="submitOrderBtn" @click="submitOrder">
-                确认订单 ￥{{ cartStore.allprice }}
-            </button>
-        </div>
-    </footer>
-
-    <!-- 弹窗部分 -->
-    <!-- 地址管理弹窗 -->
-    <div class="modal-overlay" v-if="showAddressModal" @click="showAddressModal = false">
-        <div class="modal-content" @click.stop>
-            <div class="modal-header">
-                <h3>地址管理</h3>
-                <button class="close-btn" @click="showAddressModal = false">×</button>
-            </div>
-            <div class="modal-body">
                 <!-- 地址列表 -->
-                <div class="address-list-modal">
-                    <div v-for="address in addresses" :key="address._id" class="address-card-modal"
-                        :class="{ active: selectedAddressId === address._id }">
+                <div class="address-list">
+                    <div v-for="address in addresses" :key="address._id" class="address-card"
+                        :class="{ active: selectedAddressId === address._id }" @click="selectAddress(address._id)">
                         <div class="address-info">
                             <div class="recipient-info">
                                 <span class="recipient-name">{{ address.name }}</span>
                                 <span class="recipient-phone">{{ address.phone }}</span>
                             </div>
                             <p class="address-detail">{{ address.province }} {{ address.city }} {{ address.district }}
-                                {{ address.detail }}</p>
+                                {{
+                                    address.detail }}</p>
                             <div class="address-tags">
                                 <span v-if="address.isDefault" class="tag default">默认</span>
                                 <span class="tag">{{ getTagText(address.tag) }}</span>
@@ -177,11 +51,141 @@
                         <div class="address-actions">
                             <button class="edit-btn">编辑</button>
                             <button class="delete-btn" @click="deleteAddress(address._id)">删除</button>
-                            <button class="default-btn">设为默认</button>
                         </div>
                     </div>
-                    <div class="add-new-address">
-                        <span><router-link to="/newaddress">添加新地址</router-link></span>
+                </div>
+            </section>
+
+            <!-- 商品信息区域 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>商品信息</h2>
+                    <span class="product-count">{{ selectedGoods.length }}件商品</span>
+                </div>
+                <!-- 商品列表展示需要结算的商品 -->
+                <div class="products-list">
+                    <div v-for="item in selectedGoods" :key="item.goodsId" class="product-card">
+                        <div class="product-image">
+                            <img alt="商品图片" :src="`http://127.0.0.1:3000${item.image}`" :title="item.name">
+                        </div>
+                        <div class="product-info">
+                            <h3 class="product-name">{{ item.name }}</h3>
+                            <p class="product-spec">规格：{{ '无' }}</p>
+                            <p class="product-count">数量：{{ item.count }}</p>
+                        </div>
+                        <div class="product-price">
+                            <span class="unit-price">￥{{ item.price }}</span>
+                            <span class="quantity">x{{ item.count }}</span>
+                            <!-- 商品总价 -->
+                            <span class="total-price">￥{{ Number(item.price) * Number(item.count) }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 支付方式区域 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>支付方式</h2>
+                </div>
+                <div class="payment-methods">
+                    <div class="payment-method active">
+                        <div class="method-icon alipay-icon"></div>
+                        <span class="method-name">支付宝</span>
+                        <div class="method-check">
+                            <div class="checkmark"></div>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        <div class="method-icon wechat-icon"></div>
+                        <span class="method-name">微信支付</span>
+                        <div class="method-check">
+                            <div class="checkmark"></div>
+                        </div>
+                    </div>
+                    <div class="payment-method">
+                        <div class="method-icon bank-icon"></div>
+                        <span class="method-name">银行卡</span>
+                        <div class="method-check">
+                            <div class="checkmark"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 订单信息区域 -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>订单信息</h2>
+                </div>
+                <div class="order-summary">
+                    <div class="summary-item">
+                        <span>商品总价：</span>
+                        <span>￥{{ cartStore.allprice }}</span>
+                    </div>
+                    <div class="summary-item">
+                        <span>运费：</span>
+                        <span>￥0.00</span>
+                    </div>
+                    <div class="summary-item discount"><span>优惠:</span>
+                        <span>-￥20.00</span>
+                    </div>
+                    <div class="summary-item total">
+                        <span>实付金额：</span>
+                        <span class="final-price">￥{{ cartStore.allprice }}</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- 底部操作栏 -->
+        <footer class="checkout-footer">
+            <div class="footer-content">
+                <div class="price-summary">
+                    <span class="label">应付金额：</span>
+                    <span class="price">￥{{ cartStore.allprice }}</span>
+                </div>
+                <button class="submit-order-btn" id="submitOrderBtn" @click="submitOrder">
+                    确认订单 ￥{{ cartStore.allprice }}
+                </button>
+            </div>
+        </footer>
+
+        <!-- 弹窗部分 -->
+        <!-- 地址管理弹窗 -->
+        <div class="modal-overlay" v-if="showAddressModal" @click="showAddressModal = false">
+            <div class="modal-content" @click.stop>
+                <div class="modal-header">
+                    <h3>地址管理</h3>
+                    <button class="close-btn" @click="showAddressModal = false">×</button>
+                </div>
+                <div class="modal-body">
+                    <!-- 地址列表 -->
+                    <div class="address-list-modal">
+                        <div v-for="address in addresses" :key="address._id" class="address-card-modal"
+                            :class="{ active: selectedAddressId === address._id }">
+                            <div class="address-info">
+                                <div class="recipient-info">
+                                    <span class="recipient-name">{{ address.name }}</span>
+                                    <span class="recipient-phone">{{ address.phone }}</span>
+                                </div>
+                                <p class="address-detail">{{ address.province }} {{ address.city }} {{ address.district
+                                    }}
+                                    {{ address.detail }}</p>
+                                <div class="address-tags">
+                                    <span v-if="address.isDefault" class="tag default">默认</span>
+                                    <span class="tag">{{ getTagText(address.tag) }}</span>
+                                </div>
+                            </div>
+                            <div class="address-actions">
+                                <button class="edit-btn">编辑</button>
+                                <button class="delete-btn" @click="deleteAddress(address._id)">删除</button>
+                                <button class="default-btn">设为默认</button>
+                            </div>
+                        </div>
+                        <div class="add-new-address">
+                            <span><router-link to="/newaddress">添加新地址</router-link></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -200,17 +204,17 @@ const router = useRouter()
 const cartStore = useCartStore()
 // 选中需要结算的商品渲染到页面
 const selectedGoods = computed(() => {
-    console.log('akjwl;daw',cartStore.selectedGoods);
-    
+    // console.log('akjwl;daw',cartStore.selectedGoods);
     return cartStore.selectedGoods
 })
 
-
-
-const userId = useLoginStore().userInfo.userInfo.userId
-console.log('userId:', userId);
-
-
+// 安全获取 userId，添加空值检查
+const loginStore = useLoginStore();
+const userId = computed(() => {
+    if (!loginStore.userInfo) return null;
+    return loginStore.userInfo.userId || loginStore.userInfo.userInfo?.userId || null;
+});
+console.log('userId:', userId.value);
 
 // 存放地址数据
 const addresses = ref<any[]>([])
@@ -220,10 +224,13 @@ const selectedAddressId = ref<string>('')
 const showAddressModal = ref(false)
 // 删除地址
 function deleteAddress(addressId: string) {
-
+    if (!userId.value) {
+        console.error('用户ID不存在，无法删除地址')
+        return
+    }
     try {
         console.log('删除地址请求参数:', addressId);
-        axios.delete(`http://127.0.0.1:3000/userads/deladrs/${addressId}/${userId}`)
+        axios.delete(`http://127.0.0.1:3000/userads/deladrs/${addressId}/${userId.value}`)
             .then(response => {
                 if (response.status === 200) {
                     // 删除成功后刷新地址列表
@@ -244,14 +251,18 @@ function deleteAddress(addressId: string) {
 // 获取地址列表
 const fetchAddresses = async () => {
     try {
-        // 使用环境变量中的API基础URL
-        const baseURL = 'http://127.0.0.1:3000/userads/getadrs/';
-        const response = await axios.get(`${baseURL}${userId}`)
-
+        // 检查userId是否存在
+        if (!userId.value) {
+            console.error('用户ID不存在，无法获取地址列表')
+            addresses.value = []
+            selectedAddressId.value = ''
+            return
+        }
+        
+        const response = await axios.get('http://127.0.0.1:3000/userads/getadrs/' + `${userId.value}`)
         if (response.status === 200) {
             addresses.value = response.data.data || response.data
             console.log('获取到的地址列表:', addresses.value)
-
             // 设置默认选中地址
             if (addresses.value.length > 0) {
                 const defaultAddress = addresses.value.find(addr => addr.isDefault)
@@ -298,7 +309,6 @@ onMounted(() => {
         router.push('/cart');
         return;
     }
-
     fetchAddresses();
     // 清除访问权限，确保每次都需要从购物车点击结算按钮进入
     sessionStorage.removeItem('canAccessJiesuan');
@@ -323,7 +333,7 @@ function submitOrder() {
     // 包含用户ID、地址ID、订单金额、订单状态、订单创建时间
     // 商品数据
     const orderData = {
-        userId,
+        userId: userId.value,
         addressId: selectedAddressId.value,
         // 订单金额
         orderAmount: 10878.00,
@@ -332,7 +342,7 @@ function submitOrder() {
         // 订单创建时间
         orderCreateTime: new Date().toISOString(),
         // 所购买的商品
-        ordergoods: [{ ...cartStore.selectedGoods }]
+        ordergoods: cartStore.selectedGoods
     }
     console.log(orderData)
 }
